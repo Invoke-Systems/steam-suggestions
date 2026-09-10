@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{.PlayerName}} · Library picks · PlaySift</title>
+    <link rel="stylesheet" href="/styles.css?v=theme1" />
+    {{.Analytics}}
+  </head>
+  <body class="session">
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PlaySift
+      </a>
+      <form class="top-search" method="get" action="/search" autocomplete="off" data-top-search>
+        <label class="sr-only" for="top-search-input">Search games or Steam username</label>
+        <input
+          id="top-search-input"
+          name="q"
+          type="search"
+          maxlength="80"
+          placeholder="Games or Steam username"
+          data-top-search-input
+        />
+        <div class="top-search-results" hidden data-top-search-results></div>
+      </form>
+      <nav class="topbar-end">
+        <button type="button" class="ghost" data-theme-toggle>Light</button>
+        <a class="ghost" href="/sift">Discover</a>
+        <a class="ghost" href="/picks" aria-current="page">Library picks</a>
+        <a class="ghost" href="/leave">Change profile</a>
+        {{if .SignedIn}}<a class="ghost" href="/auth/steam">Account</a>{{else}}<a class="ghost" href="/auth/steam">Sign in</a>{{end}}
+      </nav>
+    </header>
+    <main>
+      <section class="workspace">
+        <div class="session-head">
+          <div class="player">
+            {{if .Avatar}}<img src="{{.Avatar}}" alt="" width="64" height="64" />{{end}}
+            <div>
+              <h2>{{.PlayerName}}</h2>
+              <p class="player-meta">{{.Meta}}</p>
+            </div>
+          </div>
+          {{if .ShareURL}}
+          <div class="form-actions player-actions">
+            <a class="ghost" href="{{.ShareURL}}">Public profile</a>
+          </div>
+          {{end}}
+        </div>
+
+        <section class="recs">
+          <div class="recs-head">
+            <div>
+              <p class="eyebrow">Already owned</p>
+              <h2>Games in your library you might like</h2>
+              <p class="hint">
+                Ranked from your played taste. Only titles with under 2 hours played
+                {{if .CandidateN}}· {{.CandidateN}} candidates{{end}}.
+              </p>
+            </div>
+          </div>
+
+          {{if .Cards}}
+          <div class="rec-grid">
+            {{range .Cards}}
+            <article class="game-card">
+              {{if .Header}}
+              <a class="cover" href="{{.Href}}" aria-label="{{.Name}}">
+                <img class="cover-photo" src="{{.Header}}" alt="" loading="lazy" />
+              </a>
+              {{end}}
+              <div class="card-body">
+                <h3><a href="{{.Href}}">{{.Name}}</a></h3>
+                {{if .Meta}}<div class="hours">{{.Meta}}</div>{{end}}
+                {{if .Reason}}<p class="reason">{{.Reason}}</p>{{end}}
+              </div>
+            </article>
+            {{end}}
+          </div>
+          {{else}}
+          <p class="hint">{{.EmptyHint}}</p>
+          {{end}}
+        </section>
+      </section>
+    </main>
+    <script src="/theme.js?v=theme1"></script>
+    <script src="/topsearch.js?v=theme1"></script>
+  </body>
+</html>

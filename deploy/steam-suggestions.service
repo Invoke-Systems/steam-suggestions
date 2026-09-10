@@ -1,0 +1,16 @@
+[Unit]
+Description=Steam Suggestions web server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/steam-suggestions
+# Production .env must include PUBLIC_URL=https://shouldiplay.co for Steam OpenID.
+EnvironmentFile=-/opt/steam-suggestions/.env
+ExecStart=/opt/steam-suggestions/steam-suggestions
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

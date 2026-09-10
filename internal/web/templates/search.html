@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{if .Query}}{{.Query}} · {{end}}Search · PlaySift</title>
+    <link rel="stylesheet" href="/styles.css?v=theme1" />
+    {{.Analytics}}
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PlaySift
+      </a>
+      <form class="top-search" method="get" action="/search" autocomplete="off" data-top-search>
+        <label class="sr-only" for="top-search-input">Search games or Steam username</label>
+        <input
+          id="top-search-input"
+          name="q"
+          type="search"
+          maxlength="80"
+          placeholder="Games or Steam username"
+          value="{{.Query}}"
+          data-top-search-input
+        />
+        <div class="top-search-results" hidden data-top-search-results></div>
+      </form>
+      <nav class="topbar-end">
+        <button type="button" class="ghost" data-theme-toggle>Light</button>
+        <a class="ghost" href="/sift">Discover</a>
+        <a class="ghost" href="/picks">Library picks</a>
+        <a class="ghost" href="/">Home</a>
+      </nav>
+    </header>
+    <main class="game-main">
+      <section class="game-section">
+        {{if .Query}}
+        <h2>Games matching “{{.Query}}”</h2>
+        {{if .Games}}
+        <div class="game-grid">
+          {{range .Games}}
+          <article class="game-card">
+            {{if .Header}}
+            <a class="cover" href="{{.Href}}" aria-label="{{.Name}}">
+              <img class="cover-photo" src="{{.Header}}" alt="" loading="lazy" />
+            </a>
+            {{end}}
+            <div class="card-body">
+              <h3><a href="{{.Href}}">{{.Name}}</a></h3>
+            </div>
+          </article>
+          {{end}}
+        </div>
+        {{else}}
+        <p class="hint">No games found. Try another name, or Enter a Steam profile vanity URL to load a library.</p>
+        {{end}}
+        {{else}}
+        <h2>Search</h2>
+        <p class="hint">Type a game name, or Enter a Steam vanity / profile URL to load a library.</p>
+        {{end}}
+      </section>
+    </main>
+    <script src="/theme.js?v=theme1"></script>
+    <script src="/topsearch.js?v=theme1"></script>
+  </body>
+</html>

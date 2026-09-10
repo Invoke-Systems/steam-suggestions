@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PlaySift</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=theme3" />
+    <!--analytics-->
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <button type="button" class="brand" id="brand-home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PlaySift
+      </button>
+      <form class="top-search" method="get" action="/search" autocomplete="off" data-top-search>
+        <label class="sr-only" for="top-search-input">Search games or Steam username</label>
+        <input
+          id="top-search-input"
+          name="q"
+          type="search"
+          maxlength="80"
+          placeholder="Games or Steam username"
+          data-top-search-input
+        />
+        <div class="top-search-results" hidden data-top-search-results></div>
+      </form>
+      <nav class="topbar-end">
+        <button type="button" class="ghost" data-theme-toggle>Light</button>
+        <button type="button" class="ghost" id="profile-btn" hidden>Profile</button>
+        <button type="button" class="ghost" id="change-profile" hidden>Sign out</button>
+        <a class="topbar-cta" id="top-signin" href="/auth/steam">Sign in with Steam</a>
+      </nav>
+    </header>
+    <header class="masthead" id="masthead">
+      <p class="eyebrow">Steam library, sifted</p>
+      <h1>PlaySift</h1>
+      <p class="lede">
+        Search any game, or type a Steam username to sift a public library.
+        Sign in above to save sifts — taste ranks the catalog; filters keep it honest.
+      </p>
+    </header>
+
+    <main>
+      <section class="home-browse" id="browse" aria-label="Catalog right now" hidden>
+        <section class="spotlight" data-home-rail="risingReviews" hidden>
+          <div class="home-browse-head">
+            <p class="eyebrow">Right now</p>
+            <h2>Hottest latest games</h2>
+            <p class="hint">Steam’s new and hot list, preferring titles with strong review scores.</p>
+          </div>
+          <div class="spotlight-grid" data-home-grid></div>
+        </section>
+        <section class="spotlight" data-home-rail="newWithPlayers" hidden>
+          <div class="spotlight-head">
+            <h3>New with players</h3>
+            <p class="hint">Newer Steam apps that are busy in our live player samples.</p>
+          </div>
+          <div class="spotlight-grid" data-home-grid></div>
+        </section>
+        <section class="spotlight" data-home-rail="onSale" hidden>
+          <div class="spotlight-head">
+            <h3>On sale</h3>
+            <p class="hint">Deep discounts with a real review footprint.</p>
+          </div>
+          <div class="spotlight-grid" data-home-grid></div>
+        </section>
+        <section class="spotlight" data-home-rail="topPlayers" hidden>
+          <div class="spotlight-head">
+            <h3>Most playing now</h3>
+            <p class="hint">Highest concurrent players from our samples.</p>
+          </div>
+          <div class="spotlight-grid" data-home-grid></div>
+        </section>
+      </section>
+
+      <p id="status" class="status" hidden></p>
+
+      <section id="account" class="account-page" hidden>
+        <aside class="account-nav">
+          <div class="account-identity">
+            <div class="account-avatar-wrap">
+              <span id="account-initials" class="account-initials" aria-hidden="true">?</span>
+              <img id="account-avatar" alt="" hidden />
+            </div>
+            <div>
+              <p class="eyebrow">Signed in</p>
+              <p id="account-name" class="account-nav-name">Steam account</p>
+            </div>
+          </div>
+          <nav aria-label="Account">
+            <button type="button" class="account-nav-item active" data-account-page="overview">Overview</button>
+            <button type="button" class="account-nav-item" data-account-page="watchlists">My Sifts</button>
+          </nav>
+        </aside>
+        <div class="account-main">
+          <div id="account-overview">
+            <div class="account-toolbar">
+              <p class="hint" id="account-note"></p>
+              <div class="form-actions">
+                <button type="button" class="ghost" id="account-library">Load a public library</button>
+                <button type="button" class="ghost" id="account-recs" hidden>View recommendations</button>
+              </div>
+            </div>
+            <dl class="account-facts">
+              <div class="account-fact">
+                <dt>Steam account</dt>
+                <dd id="account-steam-name">—</dd>
+                <dd class="hint"><a id="account-profile-link" href="#" target="_blank" rel="noreferrer">Open Steam profile</a></dd>
+              </div>
+              <div class="account-fact">
+                <dt>SteamID64</dt>
+                <dd id="account-steamid" class="mono">—</dd>
+              </div>
+              <div class="account-fact">
+                <dt>Last login</dt>
+                <dd id="account-last-login">—</dd>
+              </div>
+              <div class="account-fact">
+                <dt>First signed in</dt>
+                <dd id="account-joined">—</dd>
+              </div>
+            </dl>
+            <section class="spotlight" aria-labelledby="sales-title">
+              <div class="spotlight-head">
+                <p class="eyebrow">Steam store</p>
+                <h3 id="sales-title">On sale now</h3>
+              </div>
+              <div id="account-sales" class="spotlight-grid"></div>
+            </section>
+            <section class="spotlight" aria-labelledby="upcoming-title">
+              <div class="spotlight-head">
+                <p class="eyebrow">Steam store</p>
+                <h3 id="upcoming-title">Coming soon</h3>
+              </div>
+              <div id="account-upcoming" class="spotlight-grid"></div>
+            </section>
+          </div>
+          <div id="account-watchlists" hidden>
+            <div>
+              <p class="eyebrow">My Sifts</p>
+              <h2>Saved sifts</h2>
+              <p class="hint">Save the current taste and filters. Apply one to run it again.</p>
+            </div>
+            <div id="account-search-slot" class="search-slot"></div>
+            <div class="panel">
+              <h3>Your sifts</h3>
+              <p class="hint">These stay on this Steam account.</p>
+              <ul id="saved-searches" class="saved-searches"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="workspace" class="workspace" hidden>
+        <div class="session-head">
+          <div class="player" id="player-card"></div>
+        </div>
+
+        <section class="recs" id="recs" hidden>
+          <div class="recs-head">
+            <div>
+              <p class="eyebrow" id="recs-eyebrow">This sift</p>
+              <h2 id="recs-title">Games in this sift</h2>
+            </div>
+          </div>
+          <div class="taste-profile" id="taste-profile" hidden>
+            <p class="eyebrow">Taste mix</p>
+            <p class="hint" id="taste-line"></p>
+            <div id="taste-bars" class="taste-bars"></div>
+          </div>
+          <div id="recs-search-slot" class="search-slot">
+          <div class="search-criteria controls sift-panel" id="search-criteria" hidden>
+            <section class="sift-layer" aria-labelledby="taste-layer-title">
+              <div class="sift-layer-head">
+                <p class="eyebrow" id="taste-layer-title">Taste</p>
+                <p class="hint">Ranks the pool. Never empties it.</p>
+              </div>
+              <div class="control-row sliders">
+                <label class="field">
+                  <span class="field-label">Audience</span>
+                  <span class="dial-ends"><span>Indie</span><span>Mainstream</span></span>
+                  <input id="dial-popularity" type="range" min="0" max="100" value="50" />
+                </label>
+                <label class="field" id="distance-field">
+                  <span class="field-label">Distance</span>
+                  <span class="dial-ends"><span>Familiar</span><span>Weird</span></span>
+                  <input id="dial-weirdness" type="range" min="0" max="100" value="25" />
+                </label>
+              </div>
+              <div class="control-row tags">
+                <div class="field typeahead prefer-field">
+                  <label for="prefer-tag">
+                    <span class="field-label">Prefer</span>
+                    <span class="field-hint">Boost these tags. Does not hide the rest.</span>
+                  </label>
+                  <div class="prefer-row">
+                    <input
+                      id="prefer-tag"
+                      type="search"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="prefer-suggest"
+                      placeholder="Action, Roguelike…"
+                      autocomplete="off"
+                    />
+                    <button type="button" class="ghost" id="prefer-add">Prefer</button>
+                  </div>
+                  <ul id="prefer-suggest" class="tag-suggest" hidden></ul>
+                  <div id="prefer-chips" class="tag-chips"></div>
+                </div>
+                <div class="field typeahead prefer-field">
+                  <label for="avoid-tag">
+                    <span class="field-label">Avoid</span>
+                    <span class="field-hint">Rank these lower. Still not a hard ban.</span>
+                  </label>
+                  <div class="prefer-row">
+                    <input
+                      id="avoid-tag"
+                      type="search"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="avoid-suggest"
+                      placeholder="Visual Novel…"
+                      autocomplete="off"
+                    />
+                    <button type="button" class="ghost" id="avoid-add">Avoid</button>
+                  </div>
+                  <ul id="avoid-suggest" class="tag-suggest" hidden></ul>
+                  <div id="avoid-chips" class="tag-chips"></div>
+                </div>
+              </div>
+            </section>
+            <section class="sift-layer" aria-labelledby="filter-layer-title">
+              <div class="sift-layer-head">
+                <p class="eyebrow" id="filter-layer-title">Filters</p>
+                <p class="hint">Hard constraints. These can empty the list.</p>
+              </div>
+              <div class="sale-row">
+                <label class="sale-toggle">
+                  <input id="dial-sale" type="checkbox" />
+                  On sale
+                </label>
+              </div>
+              <div id="advanced-search" class="advanced-search">
+                <div class="control-row toggles">
+                  <label class="sale-toggle">
+                    <input id="dial-shovel" type="checkbox" checked />
+                    Skip shovelware
+                  </label>
+                  <label class="sale-toggle">
+                    <input id="dial-adult" type="checkbox" />
+                    Hide adult
+                  </label>
+                  <label class="sale-toggle">
+                    <input id="dial-gore" type="checkbox" />
+                    Hide gore
+                  </label>
+                </div>
+                <div class="control-row numbers">
+                  <label class="field">
+                    <span class="field-label">Min reviews</span>
+                    <span class="field-hint">Whole number</span>
+                    <span class="int-input">
+                      <input id="min-reviews" type="number" inputmode="numeric" min="0" step="1" placeholder="500" />
+                      <span class="suffix">reviews</span>
+                    </span>
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Max reviews</span>
+                    <span class="field-hint">Whole number</span>
+                    <span class="int-input">
+                      <input id="max-reviews" type="number" inputmode="numeric" min="0" step="1" placeholder="none" />
+                      <span class="suffix">reviews</span>
+                    </span>
+                  </label>
+                  <label class="field">
+                    <span class="field-label">Min rating</span>
+                    <span class="field-hint">Whole number 0–100</span>
+                    <span class="int-input">
+                      <input id="min-positive" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="70" />
+                      <span class="suffix">% positive</span>
+                    </span>
+                  </label>
+                </div>
+                <div class="control-row tags">
+                  <div class="field typeahead">
+                    <label for="include-tag">
+                      <span class="field-label">Must include</span>
+                      <span class="field-hint">Game has this tag</span>
+                    </label>
+                    <input
+                      id="include-tag"
+                      type="search"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="include-suggest"
+                      placeholder="Type a tag, e.g. Farming Sim"
+                      autocomplete="off"
+                    />
+                    <ul id="include-suggest" class="tag-suggest" hidden></ul>
+                    <div id="include-chips" class="tag-chips"></div>
+                  </div>
+                  <div class="field typeahead">
+                    <label for="exclude-tag">
+                      <span class="field-label">Must exclude</span>
+                      <span class="field-hint">Game must not have this tag</span>
+                    </label>
+                    <input
+                      id="exclude-tag"
+                      type="search"
+                      role="combobox"
+                      aria-autocomplete="list"
+                      aria-expanded="false"
+                      aria-controls="exclude-suggest"
+                      placeholder="Type a tag, e.g. Free to Play"
+                      autocomplete="off"
+                    />
+                    <ul id="exclude-suggest" class="tag-suggest" hidden></ul>
+                    <div id="exclude-chips" class="tag-chips"></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <form id="watchlist-form" class="watchlist-bar">
+              <label>
+                Sift name
+                <input id="search-name" type="text" maxlength="60" placeholder="Weekend roguelites on sale" />
+              </label>
+              <button type="submit" class="primary" id="watchlist-save">Save this Sift</button>
+            </form>
+          </div>
+          </div>
+          <div id="rec-groups"></div>
+        </section>
+
+        <section class="library-panel" id="library-panel">
+          <button type="button" class="disclosure" id="library-toggle" aria-expanded="false" aria-controls="library-body">
+            <span class="disclosure-copy">
+              <span class="library-heading">Your library</span>
+              <span class="hint">This browser only. Not shared.</span>
+            </span>
+            <span class="disclosure-mark" aria-hidden="true"></span>
+          </button>
+          <div id="library-body" hidden>
+          <div class="toolbar">
+          <div class="filters" role="tablist" aria-label="Library filters">
+            <button type="button" class="chip active" data-filter="all">All</button>
+            <button type="button" class="chip" data-filter="recent">Recently played</button>
+            <button type="button" class="chip" data-filter="played">Played</button>
+            <button type="button" class="chip" data-filter="unplayed">Unplayed</button>
+          </div>
+          <label class="search">
+            <span class="sr-only">Search games</span>
+            <input id="search" type="search" placeholder="Search by name or genre" />
+          </label>
+          <label class="sort">
+            Sort
+            <select id="sort">
+              <option value="hours">Hours played</option>
+              <option value="recent">Last played</option>
+              <option value="name">Name</option>
+              <option value="genre">Genre</option>
+            </select>
+          </label>
+          <div class="view-toggle" role="group" aria-label="View">
+            <button type="button" class="chip active" data-view="cards">Cards</button>
+            <button type="button" class="chip" data-view="table">Table</button>
+          </div>
+        </div>
+
+        <div class="export-bar">
+          <p id="enrich-status">Recommendations use playtime first. Genres fill in behind the scenes.</p>
+          <div class="export-actions">
+            <button type="button" class="primary" id="export-csv">Export CSV</button>
+            <button type="button" class="ghost" id="copy-prompt">Copy LLM prompt</button>
+            <button type="button" class="ghost" id="export-prompt">Download prompt + CSV</button>
+          </div>
+        </div>
+
+        <div id="games" class="game-grid"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      (function () {
+        var params = new URLSearchParams(location.search);
+        var code = params.get("err");
+        if (!code) return;
+        var msgs = {
+          missing: "Paste a public Steam profile, vanity name, or SteamID64.",
+          notfound: "Could not find that Steam profile.",
+          private: "That library is private. Set Game details to Public.",
+          ratelimit: "Too many lookups. Try again in a few minutes.",
+          key: "This instance is missing a Steam API key.",
+          lookup: "Could not load that library.",
+        };
+        var status = document.getElementById("status");
+        if (!status) return;
+        status.hidden = false;
+        status.className = "status error";
+        status.textContent = msgs[code] || msgs.lookup;
+      })();
+    </script>
+    <script src="/theme.js?v=theme3"></script>
+    <script src="/home-browse.js?v=theme3"></script>
+    <script src="/topsearch.js?v=theme3"></script>
+    <script src="/app.js?v=theme3"></script>
+  </body>
+</html>

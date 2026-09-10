@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{.PlayerName}} · PlaySift</title>
+    <meta name="description" content="{{.PlayerName}}’s public Steam library on PlaySift." />
+    <link rel="stylesheet" href="/styles.css?v=theme1" />
+    {{.Analytics}}
+  </head>
+  <body class="session player-page">
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PlaySift
+      </a>
+      <form class="top-search" method="get" action="/search" autocomplete="off" data-top-search>
+        <label class="sr-only" for="top-search-input">Search games or Steam username</label>
+        <input
+          id="top-search-input"
+          name="q"
+          type="search"
+          maxlength="80"
+          placeholder="Games or Steam username"
+          data-top-search-input
+        />
+        <div class="top-search-results" hidden data-top-search-results></div>
+      </form>
+      <nav class="topbar-end">
+        <button type="button" class="ghost" data-theme-toggle>Light</button>
+        <a class="ghost" href="/sift">Discover</a>
+        <a class="ghost" href="/picks">Library picks</a>
+        <a class="ghost" href="/">Home</a>
+      </nav>
+    </header>
+    <main>
+      <section class="workspace">
+        <div class="session-head">
+          <div class="player">
+            {{if .Avatar}}<img src="{{.Avatar}}" alt="" width="64" height="64" />{{end}}
+            <div>
+              <p class="eyebrow">Player profile</p>
+              <h2>{{.PlayerName}}</h2>
+              {{if .Meta}}<p class="player-meta">{{.Meta}}</p>{{end}}
+            </div>
+          </div>
+          <div class="form-actions player-actions">
+            <form method="post" action="/library">
+              <input type="hidden" name="identifier" value="{{.SteamID}}" />
+              <button type="submit" class="primary">Sift this library</button>
+            </form>
+            {{if .SteamURL}}
+            <a class="ghost" href="{{.SteamURL}}" target="_blank" rel="noreferrer">Steam profile</a>
+            {{end}}
+            <button type="button" class="ghost" data-copy-share data-url="{{.ShareURL}}">Copy link</button>
+          </div>
+        </div>
+
+        {{if .Error}}
+        <p class="hint">{{.Error}}</p>
+        {{else}}
+          {{if .Clusters}}
+          <section class="recs">
+            <div class="taste-profile">
+              <p class="eyebrow">Taste mix</p>
+              <p class="hint">Tags from games they’ve played. Click one to filter the library below.</p>
+              <div class="taste-bars">
+                {{range .Clusters}}
+                <button type="button" class="taste-bar" data-taste="{{.Key}}">
+                  <span class="taste-name"><span>{{.Name}}</span></span>
+                  <span class="taste-track"><span class="taste-fill" style="width: {{.Width}}%"></span></span>
+                </button>
+                {{end}}
+              </div>
+              <p class="hint" id="library-filter-hint" hidden></p>
+            </div>
+          </section>
+          {{end}}
+
+          <section class="library-panel">
+            <div class="disclosure" aria-expanded="true">
+              <span class="disclosure-copy">
+                <span class="library-heading">Most played</span>
+                <span class="hint">{{.GameCount}} games on this public profile.</span>
+              </span>
+            </div>
+            <div class="game-grid" id="library-grid">
+              {{range .Games}}
+              <article class="game-card" data-tags="{{.Tags}}">
+                {{if .Header}}
+                <a class="cover" href="{{.Href}}" aria-label="{{.Name}}">
+                  <img class="cover-photo" src="{{.Header}}" alt="" loading="lazy" />
+                </a>
+                {{end}}
+                <div class="card-body">
+                  <h3><a href="{{.Href}}">{{.Name}}</a></h3>
+                  <div class="hours">{{.Hours}}</div>
+                </div>
+              </article>
+              {{end}}
+            </div>
+            {{if .MoreGames}}
+            <details class="library-more">
+              <summary>Show more of this library</summary>
+              <div class="game-grid" id="library-more-grid">
+                {{range .MoreGames}}
+                <article class="game-card" data-tags="{{.Tags}}">
+                  {{if .Header}}
+                  <a class="cover" href="{{.Href}}" aria-label="{{.Name}}">
+                    <img class="cover-photo" src="{{.Header}}" alt="" loading="lazy" />
+                  </a>
+                  {{end}}
+                  <div class="card-body">
+                    <h3><a href="{{.Href}}">{{.Name}}</a></h3>
+                    <div class="hours">{{.Hours}}</div>
+                  </div>
+                </article>
+                {{end}}
+              </div>
+            </details>
+            {{end}}
+          </section>
+        {{end}}
+      </section>
+    </main>
+    <script src="/theme.js?v=theme1"></script>
+    <script src="/sift.js?v=theme1"></script>
+    <script src="/topsearch.js?v=theme1"></script>
+    <script>
+      (function () {
+        var btn = document.querySelector("[data-copy-share]");
+        if (!btn) return;
+        btn.addEventListener("click", function () {
+          var url = btn.getAttribute("data-url") || location.href;
+          var absolute = url.indexOf("http") === 0 ? url : location.origin + url;
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(absolute).then(function () {
+              btn.textContent = "Copied";
+              setTimeout(function () {
+                btn.textContent = "Copy link";
+              }, 1500);
+            });
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

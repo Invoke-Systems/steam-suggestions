@@ -1,0 +1,16 @@
+node_modules/
+.env
+data/genre-cache.json
+data/review-cache.json
+data/price-history.json
+data/steam.sqlite
+data/steam.sqlite-wal
+data/steam.sqlite-shm
+data/images/*
+!data/images/.gitkeep
+/worker
+/cmd/worker/worker
+/steam-suggestions
+/cmd/server/steam-suggestions
+/cmd/server/server
+.DS_Store

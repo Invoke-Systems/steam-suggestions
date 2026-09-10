@@ -1,0 +1,12 @@
+{
+  "name": "steam-suggestions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Read a Steam library, inspect playtime and genres, and recommend games from Steam community tags.",
+  "scripts": {
+    "start": "go run ./cmd/server",
+    "dev": "go run ./cmd/server",
+    "worker": "go run ./cmd/worker -tags -prices -reviews",
+    "build": "go build -o steam-suggestions ./cmd/server"
+  }
+}

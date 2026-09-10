@@ -1,0 +1,11 @@
+[Unit]
+Description=Steam Suggestions tag and price crawl
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/steam-suggestions
+EnvironmentFile=-/opt/steam-suggestions/.env
+ExecStart=/opt/steam-suggestions/worker
+Nice=10

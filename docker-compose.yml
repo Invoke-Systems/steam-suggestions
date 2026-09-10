@@ -1,0 +1,27 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3847:3847"
+    env_file:
+      - .env
+    environment:
+      STEAM_CC: ${STEAM_CC:-us}
+      STEAM_CURRENCY: ${STEAM_CURRENCY:-USD}
+      ALLOW_CLIENT_API_KEY: "false"
+      PUBLIC_URL: ${PUBLIC_URL:-https://shouldiplay.co}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: ["/app/worker", "-every", "6h"]
+    env_file:
+      - .env
+    environment:
+      STEAM_CC: ${STEAM_CC:-us}
+      STEAM_CURRENCY: ${STEAM_CURRENCY:-USD}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

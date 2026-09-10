@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{.Name}} · PlaySift</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=theme2" />
+    {{.Analytics}}
+  </head>
+  <body class="game-page">
+    <div class="noise" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        PlaySift
+      </a>
+      <form class="top-search" method="get" action="/search" autocomplete="off" data-top-search>
+        <label class="sr-only" for="top-search-input">Search games or Steam username</label>
+        <input
+          id="top-search-input"
+          name="q"
+          type="search"
+          maxlength="80"
+          placeholder="Games or Steam username"
+          data-top-search-input
+        />
+        <div class="top-search-results" hidden data-top-search-results></div>
+      </form>
+      <nav class="topbar-end">
+        <button type="button" class="ghost" data-theme-toggle>Light</button>
+        <a class="ghost" href="/sift">Discover</a>
+        <a class="ghost" href="/picks">Library picks</a>
+        <a class="ghost" href="/">Home</a>
+      </nav>
+    </header>
+    <main class="game-main">
+      <section class="game-hero">
+        {{if .Header}}
+        <div class="game-hero-art">
+          <img class="cover-photo" src="{{.Header}}" alt="" />
+        </div>
+        {{end}}
+        <div class="game-hero-copy">
+          <p class="eyebrow">{{if .Type}}{{.Type}}{{else}}Steam app{{end}}</p>
+          <h1>{{.Name}}</h1>
+          {{if .Developers}}<p class="game-by">{{.Developers}}{{if .Publishers}} · {{.Publishers}}{{end}}</p>{{end}}
+          {{if .ReleaseDate}}<p class="hint">Released {{.ReleaseDate}}</p>{{end}}
+          {{if .Description}}<p class="game-desc">{{.Description}}</p>{{end}}
+          <div class="game-actions">
+            <a class="primary" href="{{.SteamURL}}" target="_blank" rel="noopener noreferrer">Open on Steam</a>
+            <a class="ghost" href="/">Home</a>
+          </div>
+        </div>
+      </section>
+
+      {{if or .Tags .Genres}}
+      <section class="game-tags" aria-label="Tags">
+        <div class="pills">
+          {{range .Genres}}<span class="pill">{{.}}</span>{{end}}
+          {{range .Tags}}<span class="pill">{{.}}</span>{{end}}
+        </div>
+      </section>
+      {{end}}
+
+      <section class="game-stats">
+        {{if .Players}}<div class="stat"><span class="stat-label">Playing now</span><span class="stat-value">{{.Players}}</span></div>{{end}}
+        {{if .Peak}}<div class="stat"><span class="stat-label">Sampled peak</span><span class="stat-value">{{.Peak}}</span></div>{{end}}
+        {{if .Reviews}}<div class="stat"><span class="stat-label">Steam score</span><span class="stat-value">{{.Reviews}}</span></div>{{end}}
+        {{if .Price}}
+        <div class="stat">
+          <span class="stat-label">Price</span>
+          <span class="stat-value">{{.Price}}</span>
+          {{if .PriceNote}}<span class="hint">{{.PriceNote}}</span>{{end}}
+        </div>
+        {{end}}
+        {{if not .HasData}}
+        <p class="hint">We haven’t sampled this app yet. Numbers show up after the next worker pass.</p>
+        {{end}}
+      </section>
+
+      {{if or .PriceSVG .PlayerSVG}}
+      <section class="game-charts">
+        {{if .PriceSVG}}
+        <div class="chart-block">
+          <h2>Price history</h2>
+          <p class="hint">Our daily Steam price samples (up to 2 years).</p>
+          {{.PriceSVG}}
+        </div>
+        {{end}}
+        {{if .PlayerSVG}}
+        <div class="chart-block">
+          <h2>Players</h2>
+          <p class="hint">Our recent player samples (last 2 weeks).</p>
+          {{.PlayerSVG}}
+        </div>
+        {{end}}
+      </section>
+      {{end}}
+
+      {{if .Comments}}
+      <section class="game-section">
+        <h2>What people are saying</h2>
+        <p class="hint">Recent English reviews from Steam.</p>
+        <ul class="review-list">
+          {{range .Comments}}
+          <li class="review-card">
+            <div class="review-meta">
+              <span class="review-vote {{if .VotedUp}}up{{else}}down{{end}}">{{if .VotedUp}}Recommended{{else}}Not recommended{{end}}</span>
+              {{if .Hours}}<span class="hint">{{.Hours}}h played</span>{{end}}
+              {{if .Date}}<span class="hint">{{.Date}}</span>{{end}}
+            </div>
+            <p class="review-body">{{.Text}}</p>
+            {{if .URL}}<a class="hint" href="{{.URL}}" target="_blank" rel="noopener noreferrer">Read on Steam</a>{{end}}
+          </li>
+          {{end}}
+        </ul>
+      </section>
+      {{end}}
+
+      {{if .News}}
+      <section class="game-section">
+        <h2>Updates</h2>
+        <ul class="news-list">
+          {{range .News}}
+          <li>
+            <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.Title}}</a>
+            {{if .Date}}<span class="hint">{{.Date}}</span>{{end}}
+            {{if .Body}}<p>{{.Body}}</p>{{end}}
+          </li>
+          {{end}}
+        </ul>
+      </section>
+      {{end}}
+
+      {{if .Achievements}}
+      <section class="game-section">
+        <h2>Rarest achievements</h2>
+        <p class="hint">Global unlock rates from Steam.</p>
+        <div class="ach-list">
+          {{range .Achievements}}
+          <div class="ach-row">
+            <div class="ach-meta"><span>{{.Name}}</span><span class="hours">{{.Percent}}</span></div>
+            <div class="taste-track"><span class="taste-fill" style="width: {{.Width}}%"></span></div>
+          </div>
+          {{end}}
+        </div>
+      </section>
+      {{end}}
+    </main>
+    <script src="/theme.js?v=theme2"></script>
+    <script src="/topsearch.js?v=theme2"></script>
+  </body>
+</html>
