@@ -15,6 +15,14 @@ Open [http://localhost:3847](http://localhost:3847).
 
 Build a binary with `go build -o steam-suggestions ./cmd/server` (or `npm run build`). The UI is embedded. Put `data/steam.sqlite` next to the binary (or run from this repo) so tags and prices stay available.
 
+## Production (shouldiplay.co)
+
+Infra (Linode nanode + DNS) lives in
+[tf-invoke-systems-linode](https://github.com/Invoke-Systems/tf-invoke-systems-linode)
+under `shouldiplay.co/`. This repo owns the app image and deploy workflow
+(`.github/workflows/deploy-shouldiplay.yml`). Required GitHub Actions secrets
+are listed in [SECRETS.md](SECRETS.md).
+
 ## Steam API key
 
 Steam keys belong to the **app host**, not each visitor.
