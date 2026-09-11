@@ -49,6 +49,20 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # Private packages are only pullable with this repo's GITHUB_TOKEN.
+      # shouldiplay-app-deploy runs in tf-invoke-systems-linode and logs into
+      # GHCR with that repo's token, so the image must be public (no secrets
+      # in the image) or the pull is denied.
+      - name: Make package public for cross-repo deploy pulls
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh api --method PUT \
+            /orgs/Invoke-Systems/packages/container/steam-suggestions/visibility \
+            -f visibility=public
+          echo "Package visibility set to public"
+
   # Kick the Linode TF repo to pull this image and deploy (IP comes from Terraform state).
   request-deploy:
     needs: publish
