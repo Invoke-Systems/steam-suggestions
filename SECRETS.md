@@ -2,13 +2,13 @@
 
 App image publish lives in this repo. Host deploy (SSH + Steam/ITAD/Umami
 env) lives in [tf-invoke-systems-linode](https://github.com/Invoke-Systems/tf-invoke-systems-linode)
-— see `shouldiplay.co/` and `.github/workflows/shouldiplay-deploy.yml` there.
+— see `shouldiplay.co/` and `.github/workflows/shouldiplay-app-deploy.yml` there.
 
 ## This repo (`Invoke-Systems/steam-suggestions`)
 
 | Secret | Required | Purpose |
 |--------|----------|---------|
-| `TF_DEPLOY_PAT` | no | PAT with `repo` scope on `tf-invoke-systems-linode`. When set, `publish-image` dispatches `shouldiplay-deploy` after pushing to GHCR. Without it, publish still works; deploy manually from the TF repo. |
+| `TF_DEPLOY_PAT` | no | PAT with `repo` scope on `tf-invoke-systems-linode`. When set, `publish-image` dispatches `shouldiplay-app-deploy` after pushing to GHCR. Without it, publish still works; deploy manually from the TF repo. |
 
 Also grant the default `GITHUB_TOKEN` permission to write packages (repo
 Settings → Actions → General → Workflow permissions → Read and write), so
