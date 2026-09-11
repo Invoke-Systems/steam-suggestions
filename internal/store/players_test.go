@@ -31,8 +31,12 @@ func TestPlayerSampleKeepsPeak(t *testing.T) {
 	if st.PeakDay < 80 {
 		t.Fatalf("peak day %d", st.PeakDay)
 	}
-	if _, ok := got[10]; ok {
-		t.Fatal("unexpected app")
+	if err := db.SetPlayerSampleEx(570, 100, 9000); err != nil {
+		t.Fatal(err)
+	}
+	got = db.GetPlayerStats([]int{570})
+	if got[570].Current != 100 || got[570].PeakDay < 9000 || got[570].PeakAll < 9000 {
+		t.Fatalf("charts peak %+v", got[570])
 	}
 }
 

@@ -5,69 +5,52 @@
     return (item && item.steamUrl) || "#";
   }
 
-  function decorateCover(cover, url, saleText, appid) {
-    cover.replaceChildren();
-    cover.hidden = false;
-    var fallbacks = [];
-    if (url) fallbacks.push(url);
-    if (appid) {
-      fallbacks.push("https://cdn.akamai.steamstatic.com/steam/apps/" + appid + "/header.jpg");
-      fallbacks.push(
-        "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" + appid + "/capsule_616x353.jpg"
-      );
-    }
-    if (!fallbacks.length) {
-      cover.hidden = true;
-    } else {
-      var img = document.createElement("img");
-      img.className = "cover-photo";
-      img.alt = "";
-      img.loading = "lazy";
-      var idx = 0;
-      img.src = fallbacks[0];
-      img.addEventListener("error", function () {
-        idx += 1;
-        if (idx < fallbacks.length) img.src = fallbacks[idx];
-        else cover.hidden = true;
-      });
-      cover.append(img);
-    }
-    if (saleText) {
-      var badge = document.createElement("span");
-      badge.className = "sale-badge";
-      badge.textContent = saleText;
-      cover.append(badge);
-    }
+  function thumbSrc(item) {
+    if (item && item.appid) return "/images/" + item.appid + ".jpg";
+    return (item && item.header) || "";
   }
 
-  function renderRail(grid, items, sale) {
-    grid.replaceChildren();
-    for (var i = 0; i < Math.min(items.length, 8); i++) {
+  function renderList(list, items, sale) {
+    list.replaceChildren();
+    var n = Math.min(items.length, 24);
+    for (var i = 0; i < n; i++) {
       var item = items[i];
-      var card = document.createElement("article");
-      card.className = "game-card";
-      var cover = document.createElement("a");
-      cover.className = "cover";
-      cover.href = gamePageUrl(item);
-      cover.setAttribute("aria-label", item.name || "Game");
-      var saleText = "";
-      if (sale && item.discount) {
-        saleText = item.formatted ? "−" + item.discount + "% · " + item.formatted : "−" + item.discount + "%";
+      var a = document.createElement("a");
+      a.className = "home-row";
+      a.href = gamePageUrl(item);
+
+      var thumb = document.createElement("span");
+      thumb.className = "home-row-thumb";
+      thumb.setAttribute("aria-hidden", "true");
+      var src = thumbSrc(item);
+      if (src) {
+        var img = document.createElement("img");
+        img.alt = "";
+        img.loading = "lazy";
+        img.src = src;
+        img.addEventListener("error", function () {
+          this.remove();
+        });
+        thumb.append(img);
       }
-      decorateCover(cover, item.header, saleText, item.appid);
-      var body = document.createElement("div");
-      body.className = "card-body";
-      var name = document.createElement("h3");
-      var link = document.createElement("a");
-      link.href = gamePageUrl(item);
-      link.textContent = item.name || "Game";
-      name.append(link);
-      var meta = document.createElement("div");
-      meta.className = "hours";
-      meta.textContent = item.meta || (sale && item.discount ? item.discount + "% off" : "");
-      body.append(name, meta);
-      card.append(cover, body);
-      grid.append(card);
+
+      var name = document.createElement("span");
+      name.className = "home-row-name";
+      name.textContent = item.name || "Game";
+
+      var meta = document.createElement("span");
+      meta.className = "home-row-meta";
+      if (sale && item.discount) {
+        meta.textContent = item.formatted
+          ? "−" + item.discount + "% · " + item.formatted
+          : "−" + item.discount + "%";
+      } else {
+        meta.textContent = item.meta || "";
+      }
+
+      a.append(thumb, name);
+      if (meta.textContent) a.append(meta);
+      list.append(a);
     }
   }
 
@@ -81,10 +64,10 @@
       });
       if (!res.ok) throw new Error("home");
       var rails = [
-        ["risingReviews", data.risingReviews || [], false],
+        ["hot", data.hot || [], false],
+        ["topPlayers", data.topPlayers || [], false],
         ["newWithPlayers", data.newWithPlayers || [], false],
         ["onSale", data.onSale || [], true],
-        ["topPlayers", data.topPlayers || [], false],
       ];
       var any = false;
       for (var i = 0; i < rails.length; i++) {
@@ -93,14 +76,14 @@
         var sale = rails[i][2];
         var section = browse.querySelector('[data-home-rail="' + key + '"]');
         if (!section) continue;
-        var grid = section.querySelector("[data-home-grid]");
-        if (!items.length || !grid) {
+        var list = section.querySelector("[data-home-list]");
+        if (!items.length || !list) {
           section.hidden = true;
           continue;
         }
         any = true;
         section.hidden = false;
-        renderRail(grid, items, sale);
+        renderList(list, items, sale);
       }
       browse.hidden = !any;
       if (any) browse.dataset.loaded = "1";
@@ -114,5 +97,5 @@
   } else {
     load();
   }
-  window.__playsiftLoadHome = load;
+  window.__sipLoadHome = load;
 })();

@@ -451,12 +451,20 @@ function decorateCover(cover, { url, saleText, appid } = {}) {
   cover.replaceChildren();
   cover.hidden = false;
   const fallbacks = [];
-  if (url) fallbacks.push(url);
+  const push = (src) => {
+    if (src && !fallbacks.includes(src)) fallbacks.push(src);
+  };
+  if (appid) push(`/images/${appid}.jpg`);
+  push(url);
   if (appid) {
     const id = String(appid);
-    fallbacks.push(`https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`);
-    fallbacks.push(`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/capsule_616x353.jpg`);
-    fallbacks.push(`/images/${id}.jpg`);
+    push(`https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`);
+    push(`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/header.jpg`);
+    push(`https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/header.jpg`);
+    push(`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/capsule_616x353.jpg`);
+    push(`https://cdn.akamai.steamstatic.com/steam/apps/${id}/capsule_616x353.jpg`);
+    push(`https://cdn.akamai.steamstatic.com/steam/apps/${id}/library_hero.jpg`);
+    push(`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${id}/library_hero.jpg`);
   }
   if (!fallbacks.length) {
     cover.hidden = true;
@@ -1147,8 +1155,8 @@ function renderSpotlight(el, items, { sale = false, empty = "", metaOf } = {}) {
 }
 
 async function loadHomeBrowse() {
-  if (typeof window.__playsiftLoadHome === "function") {
-    return window.__playsiftLoadHome();
+  if (typeof window.__sipLoadHome === "function") {
+    return window.__sipLoadHome();
   }
 }
 
@@ -1597,8 +1605,8 @@ async function loadLibrary(event) {
     if (loadBtn) loadBtn.disabled = false;
   }
 }
-window.__playsiftLoad = loadLibrary;
-window.__playsiftApply = applyLibrary;
+window.__sipLoad = loadLibrary;
+window.__sipApply = applyLibrary;
 
 async function loadSignedInLibrary() {
   try {
@@ -1790,7 +1798,8 @@ document.querySelector("#account-library").addEventListener("click", () => {
     setStatus("Type a Steam username or profile URL in search, then press Enter.");
   }
 });
-brandHome.addEventListener("click", () => {
+brandHome.addEventListener("click", (event) => {
+  event.preventDefault();
   if (state.games.length || state.recs) {
     showView("workspace");
     return;
@@ -1882,8 +1891,8 @@ document.querySelector("#export-prompt").addEventListener("click", () => {
 
 if (demoBtn) demoBtn.addEventListener("click", loadDemo);
 applyFiltersToDom();
-window.__playsiftLoad = loadLibrary;
-window.__playsiftApply = applyLibrary;
+window.__sipLoad = loadLibrary;
+window.__sipApply = applyLibrary;
 
 async function start() {
   if (identifierInput && !identifierInput.value) {

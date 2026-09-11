@@ -15,7 +15,7 @@ import (
 const (
 	BaseURL   = "https://api.isthereanydeal.com"
 	SteamShop = 61
-	UserAgent = "PlaySift/1.0 (+https://localhost; ITAD historical low backfill)"
+	UserAgent = "ShouldIPlay/1.0 (+https://shouldiplay.co; ITAD historical low backfill)"
 )
 
 type Client struct {

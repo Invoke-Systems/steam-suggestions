@@ -27,11 +27,12 @@ type Config struct {
 	Prices  bool
 	Reviews bool
 
-	Batch  int
-	Delay  time.Duration
-	Max429 int
-	Limit  int
-	Every  time.Duration
+	Batch   int
+	Delay   time.Duration
+	Max429  int
+	Limit   int
+	Every   time.Duration
+	Workers int // concurrent HTTP workers (players scraper)
 
 	// ITAD historical-low queue controls (used by FillITADLows).
 	// Order: "newest" (appid DESC, catch-up) or "reviews" (known games first).
@@ -106,11 +107,14 @@ func Run(ctx context.Context, db *store.DB, client *steam.Client, cfg Config) er
 		jobs = append(jobs, job{"players", func(ctx context.Context) error {
 			return scrapeLoop(ctx, cfg.Every, func(ctx context.Context) error {
 				p := cfg
-				if p.Delay > 400*time.Millisecond {
-					p.Delay = 400 * time.Millisecond
+				if p.Delay > 150*time.Millisecond {
+					p.Delay = 150 * time.Millisecond
 				}
 				if p.Limit <= 0 {
 					p.Limit = 200
+				}
+				if p.Workers <= 0 {
+					p.Workers = 8
 				}
 				return scrapePlayers(ctx, db, client, p)
 			})

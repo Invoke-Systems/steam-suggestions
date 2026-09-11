@@ -54,6 +54,9 @@ func TestHandleGameRendersCollectedMetrics(t *testing.T) {
 	if !strings.Contains(body, `href="https://store.steampowered.com/app/730/"`) {
 		t.Fatal("expected Steam store CTA href")
 	}
+	if !strings.Contains(body, `src="/images/730.jpg"`) {
+		t.Fatal("expected local cached cover URL")
+	}
 }
 
 func TestAppURL(t *testing.T) {

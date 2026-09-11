@@ -119,7 +119,13 @@ func (s *Server) handleSteamCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.setSessionCookie(w, r, token)
-	http.Redirect(w, r, origin+"/sift", http.StatusSeeOther)
+	// Bind Discover to the account that just signed in (clears any prior guest focus).
+	s.clearFocusCookie(w, r)
+	if err := s.setFocus(w, r, steamid); err != nil {
+		log.Printf("steam login focus: %v", err)
+	}
+	// Relative redirect keeps the session cookie on this host.
+	http.Redirect(w, r, "/sift", http.StatusSeeOther)
 }
 
 func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {

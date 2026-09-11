@@ -1,5 +1,5 @@
 (function () {
-  var key = "playsift-theme";
+  var key = "sip-theme";
   var root = document.documentElement;
 
   function current() {
@@ -7,7 +7,7 @@
   }
 
   function label(theme) {
-    return theme === "light" ? "Dark" : "Light";
+    return theme === "dark" ? "Day" : "Night";
   }
 
   function apply(theme) {
@@ -27,14 +27,11 @@
   try {
     saved = localStorage.getItem(key) || "";
   } catch (e) {}
-  if (!saved && window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
-    saved = "light";
-  }
   apply(saved || "dark");
 
   document.addEventListener("click", function (event) {
     var btn = event.target.closest("[data-theme-toggle]");
     if (!btn) return;
-    apply(current() === "light" ? "dark" : "light");
+    apply(current() === "dark" ? "light" : "dark");
   });
 })();

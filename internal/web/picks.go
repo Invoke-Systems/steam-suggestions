@@ -151,7 +151,7 @@ func (s *Server) picksFromPayload(payload map[string]any) picksView {
 		}
 		view.Cards = append(view.Cards, siftGame{
 			Name:     card.Name,
-			Header:   steam.HeaderURL(card.AppID),
+			Header:   steam.CachedCoverURL(card.AppID),
 			Href:     steam.AppURL(card.AppID),
 			SteamURL: card.SteamURL,
 			Hours:    play,

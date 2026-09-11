@@ -13,6 +13,12 @@ type PlayerStats struct {
 }
 
 func (db *DB) SetPlayerSample(appid, current int) error {
+	return db.SetPlayerSampleEx(appid, current, 0)
+}
+
+// SetPlayerSampleEx records a concurrent sample. steamPeakToday (when > 0) is
+// Steam's "peak today" from charts and raises peak_day / peak_all.
+func (db *DB) SetPlayerSampleEx(appid, current, steamPeakToday int) error {
 	if appid <= 0 || current < 0 {
 		return nil
 	}
@@ -38,6 +44,9 @@ func (db *DB) SetPlayerSample(appid, current int) error {
 	if peakDay < current {
 		peakDay = current
 	}
+	if steamPeakToday > peakDay {
+		peakDay = steamPeakToday
+	}
 	_ = tx.QueryRow(
 		`SELECT COALESCE(MAX(peak_all), 0) FROM player_stats WHERE appid = ?`,
 		appid,
@@ -47,6 +56,9 @@ func (db *DB) SetPlayerSample(appid, current int) error {
 	}
 	if peakDay > peakAll {
 		peakAll = peakDay
+	}
+	if steamPeakToday > peakAll {
+		peakAll = steamPeakToday
 	}
 	if _, err := tx.Exec(`
 		INSERT INTO player_stats (appid, current, peak_day, peak_all, sampled_at)

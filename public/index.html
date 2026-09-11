@@ -3,23 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PlaySift</title>
+    <title>Should I Play</title>
+    <meta
+      name="description"
+      content="Should I Play — search any Steam game or username and get an honest sift of what fits your library."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Fragment+Mono:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=theme3" />
+    <link rel="stylesheet" href="/styles.css?v=sip10" />
     <!--analytics-->
   </head>
   <body>
     <div class="noise" aria-hidden="true"></div>
+    <div class="stripe-field" aria-hidden="true"></div>
     <header class="topbar">
-      <button type="button" class="brand" id="brand-home">
-        <span class="brand-mark" aria-hidden="true"></span>
-        PlaySift
-      </button>
+      <a class="brand" href="/" id="brand-home">
+        <span class="brand-mark" aria-hidden="true">?</span>
+        Should I Play
+      </a>
       <form class="top-search" method="get" action="/search" autocomplete="off" data-top-search>
         <label class="sr-only" for="top-search-input">Search games or Steam username</label>
         <input
@@ -27,57 +32,63 @@
           name="q"
           type="search"
           maxlength="80"
-          placeholder="Games or Steam username"
+          placeholder="Game title or Steam username"
           data-top-search-input
         />
         <div class="top-search-results" hidden data-top-search-results></div>
       </form>
       <nav class="topbar-end">
-        <button type="button" class="ghost" data-theme-toggle>Light</button>
+        <button type="button" class="ghost" data-theme-toggle>Day</button>
         <button type="button" class="ghost" id="profile-btn" hidden>Profile</button>
         <button type="button" class="ghost" id="change-profile" hidden>Sign out</button>
         <a class="topbar-cta" id="top-signin" href="/auth/steam">Sign in with Steam</a>
       </nav>
     </header>
-    <header class="masthead" id="masthead">
-      <p class="eyebrow">Steam library, sifted</p>
-      <h1>PlaySift</h1>
-      <p class="lede">
-        Search any game, or type a Steam username to sift a public library.
-        Sign in above to save sifts — taste ranks the catalog; filters keep it honest.
+
+    <header class="hero hero--compact" id="masthead">
+      <div class="hero-copy">
+        <h1 class="hero-brand">
+          <span class="hero-line">Should I</span>
+          <span class="hero-line hero-line-play">Play<span class="hero-q">?</span></span>
+        </h1>
+        <p class="lede">
+          Search a game or Steam username. Taste from real playtime — save sifts when you sign in.
+        </p>
+      </div>
+      <p class="hero-hint hint">
+        <kbd>/</kbd> focus search · lists below are live from our catalog
       </p>
     </header>
 
     <main>
-      <section class="home-browse" id="browse" aria-label="Catalog right now" hidden>
-        <section class="spotlight" data-home-rail="risingReviews" hidden>
-          <div class="home-browse-head">
-            <p class="eyebrow">Right now</p>
-            <h2>Hottest latest games</h2>
-            <p class="hint">Steam’s new and hot list, preferring titles with strong review scores.</p>
+      <section class="home-browse" id="browse" aria-label="Catalog" hidden>
+        <section class="home-dir" data-home-rail="hot" hidden>
+          <div class="rail-head">
+            <h2><span class="slash">/</span> Hot</h2>
+            <p class="hint">5k+ and right at the top of their range</p>
           </div>
-          <div class="spotlight-grid" data-home-grid></div>
+          <div class="home-list" data-home-list></div>
         </section>
-        <section class="spotlight" data-home-rail="newWithPlayers" hidden>
-          <div class="spotlight-head">
-            <h3>New with players</h3>
-            <p class="hint">Newer Steam apps that are busy in our live player samples.</p>
+        <section class="home-dir" data-home-rail="topPlayers" hidden>
+          <div class="rail-head">
+            <h3><span class="slash">/</span> Most playing</h3>
+            <p class="hint">Highest concurrent from samples</p>
           </div>
-          <div class="spotlight-grid" data-home-grid></div>
+          <div class="home-list" data-home-list></div>
         </section>
-        <section class="spotlight" data-home-rail="onSale" hidden>
-          <div class="spotlight-head">
-            <h3>On sale</h3>
-            <p class="hint">Deep discounts with a real review footprint.</p>
+        <section class="home-dir" data-home-rail="newWithPlayers" hidden>
+          <div class="rail-head">
+            <h3><span class="slash">/</span> Popular now</h3>
+            <p class="hint">Newer titles with 5k+ playing</p>
           </div>
-          <div class="spotlight-grid" data-home-grid></div>
+          <div class="home-list" data-home-list></div>
         </section>
-        <section class="spotlight" data-home-rail="topPlayers" hidden>
-          <div class="spotlight-head">
-            <h3>Most playing now</h3>
-            <p class="hint">Highest concurrent players from our samples.</p>
+        <section class="home-dir" data-home-rail="onSale" hidden>
+          <div class="rail-head">
+            <h3><span class="slash">/</span> On sale</h3>
+            <p class="hint">Deep cuts with review weight</p>
           </div>
-          <div class="spotlight-grid" data-home-grid></div>
+          <div class="home-list" data-home-list></div>
         </section>
       </section>
 
@@ -414,9 +425,9 @@
         status.textContent = msgs[code] || msgs.lookup;
       })();
     </script>
-    <script src="/theme.js?v=theme3"></script>
-    <script src="/home-browse.js?v=theme3"></script>
-    <script src="/topsearch.js?v=theme3"></script>
-    <script src="/app.js?v=theme3"></script>
+    <script src="/theme.js?v=sip10"></script>
+    <script src="/home-browse.js?v=sip10"></script>
+    <script src="/topsearch.js?v=sip10"></script>
+    <script src="/app.js?v=sip10"></script>
   </body>
 </html>

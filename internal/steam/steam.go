@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	UserAgent  = "Mozilla/5.0 (compatible; SteamSuggestions/1.0; +https://localhost)"
+	UserAgent  = "Mozilla/5.0 (compatible; ShouldIPlay/1.0; +https://shouldiplay.co)"
 	tagListURL = "https://api.steampowered.com/IStoreService/GetTagList/v1/?language=english"
 	itemsURL   = "https://api.steampowered.com/IStoreBrowseService/GetItems/v1/"
 	appListURL = "https://api.steampowered.com/IStoreService/GetAppList/v1/"

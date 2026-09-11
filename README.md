@@ -1,4 +1,4 @@
-# Steam Suggestions
+# Should I Play
 
 Load a public Steam library, inspect hours and genres, and get recommendations from Steam community tags. The app is a single Go executable: the UI is embedded, and visitors cannot swap out source on a live host.
 
@@ -81,6 +81,7 @@ Each Steam endpoint runs in its own goroutine. Appid is the primary key for game
 ```bash
 go run ./cmd/worker
 go run ./cmd/worker -players -details -limit 200
+go run ./cmd/worker -players -workers 8 -limit 1000   # charts top-100 + parallel samples
 go run ./cmd/worker -every 6h
 # legacy aliases still work: -tags -prices -reviews (drive GetItems writes)
 ```

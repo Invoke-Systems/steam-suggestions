@@ -34,6 +34,7 @@ func main() {
 	itadMinReviews := flag.Int("itad-min-reviews", 0, "ITAD: only queue apps with at least this many reviews (leave sparse apps for later)")
 	delay := flag.Duration("delay", 2*time.Second, "base delay between requests/batches")
 	batch := flag.Int("batch", 40, "appids per batch where applicable")
+	workers := flag.Int("workers", 8, "concurrent HTTP workers for -players")
 	dbPath := flag.String("db", "data/steam.sqlite", "sqlite path")
 	max429 := flag.Int("max-429", 5, "exit a scraper after this many consecutive 429/5xx")
 	limit := flag.Int("limit", 0, "stop each scraper after this many apps (0 = drain queue)")
@@ -104,6 +105,7 @@ func main() {
 		Max429:       *max429,
 		Limit:        *limit,
 		Every:        *every,
+		Workers:      *workers,
 	}
 	log.Printf("worker: launching independent Steam scrapers")
 	if err := jobs.Run(ctx, db, client, cfg); err != nil {

@@ -1,7 +1,6 @@
 package store
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -19,14 +18,15 @@ type HomeItem struct {
 
 // HomeRails groups discovery lists for the anonymous landing page.
 type HomeRails struct {
+	Hot            []HomeItem `json:"hot"`
 	NewWithPlayers []HomeItem `json:"newWithPlayers"`
-	RisingReviews  []HomeItem `json:"risingReviews"`
 	OnSale         []HomeItem `json:"onSale"`
 	TopPlayers     []HomeItem `json:"topPlayers"`
 }
 
 func homeURLs(appid int) (header, page, steam string) {
-	header = fmt.Sprintf("https://cdn.akamai.steamstatic.com/steam/apps/%d/header.jpg", appid)
+	// Serve through /images so the app applies Steam CDN fallbacks + disk cache.
+	header = "/images/" + strconv.Itoa(appid) + ".jpg"
 	page = "/app/" + strconv.Itoa(appid)
 	steam = "https://store.steampowered.com/app/" + strconv.Itoa(appid) + "/"
 	return header, page, steam
@@ -56,17 +56,52 @@ func CommaInt(n int) string {
 	return string(b)
 }
 
-// HomeNewWithPlayers: newer Steam titles that currently have many players.
+// HomeHot: concurrent close to our observed peak (ever) — tiny delta = hot.
+// Floor 5k players; must be within 20% of peak_all (ratio ≥ 0.80).
+func (db *DB) HomeHot(limit int) []HomeItem {
+	if limit <= 0 {
+		limit = 12
+	}
+	rows, err := db.sql.Query(`
+		SELECT g.appid, g.name, ps.current
+		FROM player_stats ps
+		JOIN games g ON g.appid = ps.appid
+		WHERE g.name != ''
+		  AND ps.current >= 5000
+		  AND ps.peak_all > ps.current
+		  AND (1.0 * ps.current / ps.peak_all) >= 0.80
+		ORDER BY (1.0 * ps.current / ps.peak_all) DESC, ps.current DESC
+		LIMIT ?
+	`, limit)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var out []HomeItem
+	for rows.Next() {
+		var item HomeItem
+		var current int
+		if err := rows.Scan(&item.AppID, &item.Name, &current); err != nil {
+			continue
+		}
+		item.Header, item.PageURL, item.SteamURL = homeURLs(item.AppID)
+		item.Meta = CommaInt(current) + " in-game"
+		out = append(out, item)
+	}
+	_ = rows.Err()
+	return out
+}
+
+// HomeNewWithPlayers: newer Steam titles with a real concurrent floor (≥5k).
 func (db *DB) HomeNewWithPlayers(limit int) []HomeItem {
 	if limit <= 0 {
 		limit = 12
 	}
 	rows, err := db.sql.Query(`
-		SELECT g.appid, g.name, ps.current, COALESCE(r.positive, 0), COALESCE(r.total, 0)
+		SELECT g.appid, g.name, ps.current
 		FROM player_stats ps
 		JOIN games g ON g.appid = ps.appid
-		LEFT JOIN reviews r ON r.appid = g.appid
-		WHERE ps.current >= 50 AND g.name != ''
+		WHERE ps.current >= 5000 AND g.name != ''
 		ORDER BY g.appid DESC, ps.current DESC
 		LIMIT ?
 	`, limit)
@@ -77,51 +112,12 @@ func (db *DB) HomeNewWithPlayers(limit int) []HomeItem {
 	var out []HomeItem
 	for rows.Next() {
 		var item HomeItem
-		var current, positive, total int
-		if err := rows.Scan(&item.AppID, &item.Name, &current, &positive, &total); err != nil {
+		var current int
+		if err := rows.Scan(&item.AppID, &item.Name, &current); err != nil {
 			continue
 		}
 		item.Header, item.PageURL, item.SteamURL = homeURLs(item.AppID)
 		item.Meta = CommaInt(current) + " in-game"
-		if positive > 0 && total > 0 {
-			item.Meta += " · " + strconv.Itoa(positive) + "% of " + CommaInt(total)
-		}
-		out = append(out, item)
-	}
-	_ = rows.Err()
-	return out
-}
-
-// HomeRisingReviews: newer games with excellent review scores (lifetime % —
-// Steam does not expose a stored recent-vs-overall split in our crawl yet).
-func (db *DB) HomeRisingReviews(limit int) []HomeItem {
-	if limit <= 0 {
-		limit = 12
-	}
-	rows, err := db.sql.Query(`
-		SELECT g.appid, g.name, r.positive, r.total
-		FROM reviews r
-		JOIN games g ON g.appid = r.appid
-		WHERE g.name != ''
-		  AND r.positive >= 90
-		  AND r.total >= 500
-		  AND r.total <= 80000
-		ORDER BY g.appid DESC, r.positive DESC, r.total DESC
-		LIMIT ?
-	`, limit)
-	if err != nil {
-		return nil
-	}
-	defer rows.Close()
-	var out []HomeItem
-	for rows.Next() {
-		var item HomeItem
-		var positive, total int
-		if err := rows.Scan(&item.AppID, &item.Name, &positive, &total); err != nil {
-			continue
-		}
-		item.Header, item.PageURL, item.SteamURL = homeURLs(item.AppID)
-		item.Meta = strconv.Itoa(positive) + "% of " + CommaInt(total) + " reviews"
 		out = append(out, item)
 	}
 	_ = rows.Err()
@@ -205,8 +201,8 @@ func (db *DB) HomeRails(limit int) HomeRails {
 		limit = 12
 	}
 	return HomeRails{
+		Hot:            db.HomeHot(limit),
 		NewWithPlayers: db.HomeNewWithPlayers(limit),
-		RisingReviews:  db.HomeRisingReviews(limit),
 		OnSale:         db.HomeOnSale(limit),
 		TopPlayers:     db.HomeTopPlayers(limit),
 	}

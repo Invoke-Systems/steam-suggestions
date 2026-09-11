@@ -83,7 +83,7 @@ func (s *Server) gameFromDB(appid int) gameView {
 	view := gameView{
 		AppID:    appid,
 		Name:     "Steam app " + strconv.Itoa(appid),
-		Header:   steam.HeaderURL(appid),
+		Header:   steam.CachedCoverURL(appid),
 		SteamURL: steam.StoreURL(appid),
 	}
 	if game, ok := s.DB.GetGame(appid); ok && strings.TrimSpace(game.Name) != "" {

@@ -110,6 +110,8 @@ func contentSecurityPolicy(opts htmlHeaderOpts) string {
 		"'self'",
 		"https://shared.akamai.steamstatic.com",
 		"https://cdn.akamai.steamstatic.com",
+		"https://cdn.cloudflare.steamstatic.com",
+		"https://steamcdn-a.akamaihd.net",
 		"https://media.steampowered.com",
 		"data:",
 	}

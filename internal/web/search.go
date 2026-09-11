@@ -43,7 +43,7 @@ func (s *Server) handleSearchGamesAPI(w http.ResponseWriter, r *http.Request) {
 			"appid":   row.AppID,
 			"name":    row.Name,
 			"pageUrl": steam.AppURL(row.AppID),
-			"header":  steam.HeaderURL(row.AppID),
+			"header":  steam.CachedCoverURL(row.AppID),
 		})
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"games": out, "q": q})
@@ -61,7 +61,7 @@ func (s *Server) handleSearchPage(w http.ResponseWriter, r *http.Request) {
 			view.Games = append(view.Games, searchHit{
 				Name:   row.Name,
 				Href:   steam.AppURL(row.AppID),
-				Header: steam.HeaderURL(row.AppID),
+				Header: steam.CachedCoverURL(row.AppID),
 			})
 		}
 	}

@@ -209,7 +209,7 @@ func AppURL(appid int) string {
 	return "/app/" + strconv.Itoa(appid)
 }
 
-// PlayerURL is the canonical shareable PlaySift profile path for a steamid64.
+// PlayerURL is the canonical shareable Should I Play profile path for a steamid64.
 func PlayerURL(steamid string) string {
 	if steamid == "" {
 		return "/"

@@ -36,7 +36,7 @@ func main() {
 	server.Warmup()
 
 	addr := ":" + env.Get("PORT", "3847")
-	log.Printf("Steam Suggestions running at http://localhost%s", addr)
+	log.Printf("Should I Play running at http://localhost%s", addr)
 	httpServer := &http.Server{
 		Addr:              addr,
 		Handler:           server.Handler(),

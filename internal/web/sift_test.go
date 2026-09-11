@@ -47,8 +47,11 @@ func TestSiftLibraryShowsTopTwelve(t *testing.T) {
 	if !strings.Contains(view.Games[0].Tags, "|roguelike|") {
 		t.Fatal(view.Games[0].Tags)
 	}
-	if strings.HasPrefix(view.Games[0].Header, "/images/") {
-		t.Fatal("sift covers should use Steam CDN, not placeholders")
+	if view.Games[0].Header == "" {
+		t.Fatal("missing cover")
+	}
+	if !strings.HasPrefix(view.Games[0].Header, "/images/") {
+		t.Fatalf("sift covers should use /images/, got %q", view.Games[0].Header)
 	}
 }
 

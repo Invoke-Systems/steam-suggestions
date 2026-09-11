@@ -222,4 +222,16 @@
   }
 
   for (var i = 0; i < forms.length; i++) bind(forms[i]);
+
+  // Power-user shortcut: "/" focuses the first top search (skip when typing elsewhere).
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key !== "/" || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    var t = ev.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+    var input = document.querySelector("[data-top-search-input]");
+    if (!input) return;
+    ev.preventDefault();
+    input.focus();
+    input.select();
+  });
 })();

@@ -3,22 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{.Name}} · PlaySift</title>
+    <title>{{.Name}} · Should I Play</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,640&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Fragment+Mono:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=theme2" />
+    <link rel="stylesheet" href="/styles.css?v=sip5" />
     {{.Analytics}}
   </head>
   <body class="game-page">
     <div class="noise" aria-hidden="true"></div>
     <header class="topbar">
       <a class="brand" href="/">
-        <span class="brand-mark" aria-hidden="true"></span>
-        PlaySift
+        <span class="brand-mark" aria-hidden="true">?</span>
+        Should I Play
       </a>
       <form class="top-search" method="get" action="/search" autocomplete="off" data-top-search>
         <label class="sr-only" for="top-search-input">Search games or Steam username</label>
@@ -153,7 +153,7 @@
       </section>
       {{end}}
     </main>
-    <script src="/theme.js?v=theme2"></script>
-    <script src="/topsearch.js?v=theme2"></script>
+    <script src="/theme.js?v=sip4"></script>
+    <script src="/topsearch.js?v=sip4"></script>
   </body>
 </html>

@@ -18,7 +18,7 @@ import (
 var tmplFS embed.FS
 
 const (
-	focusCookie   = "playsift_focus"
+	focusCookie   = "sip_focus"
 	maxIdentifier = 200
 	maxSiftTop    = 12
 	maxSiftGames  = 80
@@ -39,6 +39,7 @@ type siftView struct {
 	Games      []siftGame
 	MoreGames  []siftGame
 	Recs       []siftRecGroup
+	Error      string
 	Analytics  template.HTML
 }
 
@@ -120,8 +121,31 @@ func (s *Server) handleSift(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/?err=key", http.StatusSeeOther)
 		return
 	}
+	user, signedIn := s.sessionUser(r)
 	payload, err := s.libraryFor(s.clientFor(key), steamid)
 	if err != nil {
+		// Signed-in users stay on their library page instead of bouncing home.
+		if signedIn && user.SteamID == steamid {
+			view := siftView{
+				SignedIn:   true,
+				SteamID:    steamid,
+				ShareURL:   steam.PlayerURL(steamid),
+				PlayerName: "Steam player",
+				Error:      playerErrorMessage(err),
+				Analytics:  analyticsHTML(),
+			}
+			if strings.TrimSpace(user.Name) != "" {
+				view.PlayerName = user.Name
+			}
+			if strings.HasPrefix(user.Avatar, "https://") {
+				view.Avatar = user.Avatar
+			}
+			setHTMLHeaders(w, htmlHeaderOpts{Avatars: true})
+			if execErr := siftTmpl.Execute(w, view); execErr != nil {
+				log.Printf("sift template: %v", execErr)
+			}
+			return
+		}
 		http.Redirect(w, r, "/?err="+lookupCode(err), http.StatusSeeOther)
 		return
 	}
@@ -129,7 +153,7 @@ func (s *Server) handleSift(w http.ResponseWriter, r *http.Request) {
 	view.SteamID = steamid
 	view.ShareURL = steam.PlayerURL(steamid)
 	view.Analytics = analyticsHTML()
-	_, view.SignedIn = s.sessionUser(r)
+	view.SignedIn = signedIn
 	setHTMLHeaders(w, htmlHeaderOpts{Avatars: true})
 	if err := siftTmpl.Execute(w, view); err != nil {
 		log.Printf("sift template: %v", err)
@@ -263,7 +287,7 @@ func toSiftGames(games []libraryGame) []siftGame {
 	for _, game := range games {
 		out = append(out, siftGame{
 			Name:     game.Name,
-			Header:   steam.HeaderURL(game.AppID),
+			Header:   steam.CachedCoverURL(game.AppID),
 			Href:     steam.AppURL(game.AppID),
 			SteamURL: game.SteamURL,
 			Hours:    formatHours(game.Hours),
@@ -339,7 +363,7 @@ func (s *Server) siftRecs(games []libraryGame, wishlist []int) []siftRecGroup {
 			}
 			item.Cards = append(item.Cards, siftGame{
 				Name:     card.Name,
-				Header:   steam.HeaderURL(card.AppID),
+				Header:   steam.CachedCoverURL(card.AppID),
 				Href:     steam.AppURL(card.AppID),
 				SteamURL: card.SteamURL,
 				Reason:   card.Reason,

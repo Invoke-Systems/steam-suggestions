@@ -22,14 +22,21 @@ func CachedCoverURL(appid int) string {
 	return "/images/" + strconv.Itoa(appid) + ".jpg"
 }
 
-// CoverURLs is the Steam CDN fallback list for a store header.
+// CoverURLs is the Steam CDN fallback list for store art.
+// Newer / unreleased apps often lack header.jpg but still ship library_hero.
 func CoverURLs(appid int) []string {
 	id := strconv.Itoa(appid)
 	return []string{
 		HeaderURL(appid),
 		"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" + id + "/header.jpg",
-		"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" + id + "/capsule_616x353.jpg",
 		"https://cdn.cloudflare.steamstatic.com/steam/apps/" + id + "/header.jpg",
+		"https://steamcdn-a.akamaihd.net/steam/apps/" + id + "/header.jpg",
+		"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" + id + "/capsule_616x353.jpg",
+		"https://cdn.akamai.steamstatic.com/steam/apps/" + id + "/capsule_616x353.jpg",
+		"https://cdn.cloudflare.steamstatic.com/steam/apps/" + id + "/capsule_616x353.jpg",
+		"https://cdn.akamai.steamstatic.com/steam/apps/" + id + "/library_hero.jpg",
+		"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/" + id + "/library_hero.jpg",
+		"https://cdn.cloudflare.steamstatic.com/steam/apps/" + id + "/library_hero.jpg",
 	}
 }
 
