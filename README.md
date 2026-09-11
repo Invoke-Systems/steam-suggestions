@@ -17,11 +17,11 @@ Build a binary with `go build -o steam-suggestions ./cmd/server` (or `npm run bu
 
 ## Production (shouldiplay.co)
 
-Infra (Linode nanode + DNS) lives in
+Infra (Linode nanode + DNS) and **host deploy** live in
 [tf-invoke-systems-linode](https://github.com/Invoke-Systems/tf-invoke-systems-linode)
-under `shouldiplay.co/`. This repo owns the app image and deploy workflow
-(`.github/workflows/deploy-shouldiplay.yml`). Required GitHub Actions secrets
-are listed in [SECRETS.md](SECRETS.md).
+under `shouldiplay.co/`. This repo only **builds and pushes** the app image
+(`.github/workflows/publish-image.yml` → `ghcr.io/invoke-systems/steam-suggestions`).
+Secrets split is documented in [SECRETS.md](SECRETS.md).
 
 ## Steam API key
 

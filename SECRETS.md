@@ -1,22 +1,31 @@
-# Deploy secrets (GitHub Actions)
+# Deploy secrets
 
-Add these under **Settings → Secrets and variables → Actions** on
-`Invoke-Systems/steam-suggestions`:
+App image publish lives in this repo. Host deploy (SSH + Steam/ITAD/Umami
+env) lives in [tf-invoke-systems-linode](https://github.com/Invoke-Systems/tf-invoke-systems-linode)
+— see `shouldiplay.co/` and `.github/workflows/shouldiplay-deploy.yml` there.
+
+## This repo (`Invoke-Systems/steam-suggestions`)
 
 | Secret | Required | Purpose |
 |--------|----------|---------|
-| `STEAM_API_KEY` | yes | Steam Web API key for the host |
-| `SHOULDI_PLAY_SSH_PRIVATE_KEY` | yes | Private key matching the pubkey on the nanode (`matth`, port 2222). Can be the same key as `HOSTING_SSH_PRIVATE_KEY` in tf-invoke-systems-linode if that pubkey is in the instance `terraform.tfvars`. |
-| `SHOULDI_PLAY_HOST` | yes | Nanode IPv4 (set after `shouldiplay.co/01-instance` apply) |
-| `ITAD_API_KEY` | no | IsThereAnyDeal key for worker historical lows |
-| `UMAMI_WEBSITE_ID` | no | Analytics site id; leaves tracker off if unset |
+| `TF_DEPLOY_PAT` | no | PAT with `repo` scope on `tf-invoke-systems-linode`. When set, `publish-image` dispatches `shouldiplay-deploy` after pushing to GHCR. Without it, publish still works; deploy manually from the TF repo. |
 
 Also grant the default `GITHUB_TOKEN` permission to write packages (repo
 Settings → Actions → General → Workflow permissions → Read and write), so
 the workflow can push to `ghcr.io/invoke-systems/steam-suggestions`.
 
-## Infra secrets (tf-invoke-systems-linode)
+## Infra repo (`Invoke-Systems/tf-invoke-systems-linode`)
 
-Reuse existing Linode/Object Storage secrets. No new repo secrets required
-for the nanode itself if the committed SSH pubkey already matches your
-deploy key.
+Reuse existing Linode/SSH secrets. Add app runtime secrets there:
+
+| Secret | Required | Purpose |
+|--------|----------|---------|
+| `STEAM_API_KEY` | yes | Steam Web API key on the nanode |
+| `ITAD_API_KEY` | no | IsThereAnyDeal key for worker historical lows |
+| `UMAMI_WEBSITE_ID` | no | Analytics site id; leaves tracker off if unset |
+| `HOSTING_SSH_PRIVATE_KEY` | yes | Private key for `matth@` on port 2222 (same key as shared hosting if that pubkey is on the nanode) |
+| `LINODE_INSTANCES_API_KEY` | yes | Read instance IP via Terraform state |
+| `LINODE_OBJ_ACCESS_KEY` / `LINODE_OBJ_SECRET_KEY` | yes | Read `shouldiplay-co-tfstate` |
+
+No `SHOULDI_PLAY_HOST` — deploy resolves the nanode IP from
+`shouldiplay.co/01-instance` Terraform output.

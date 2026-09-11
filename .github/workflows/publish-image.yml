@@ -1,0 +1,75 @@
+name: publish-image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-image
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      image_ref: ${{ steps.meta.outputs.ref }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image metadata
+        id: meta
+        run: |
+          set -euo pipefail
+          image=ghcr.io/invoke-systems/steam-suggestions
+          tag="${{ github.sha }}"
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "ref=${image}:${tag}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.meta.outputs.ref }}
+            ${{ steps.meta.outputs.image }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Kick the Linode TF repo to pull this image and deploy (IP comes from Terraform state).
+  request-deploy:
+    needs: publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: repository_dispatch → tf-invoke-systems-linode
+        env:
+          GH_TOKEN: ${{ secrets.TF_DEPLOY_PAT }}
+          IMAGE_REF: ${{ needs.publish.outputs.image_ref }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "TF_DEPLOY_PAT unset — image published; deploy manually via tf-invoke-systems-linode shouldiplay-deploy"
+            exit 0
+          fi
+          payload=$(jq -nc --arg image "$IMAGE_REF" --arg sha "${{ github.sha }}" \
+            '{event_type:"shouldiplay-deploy", client_payload:{image:$image, sha:$sha}}')
+          curl -fsS -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/Invoke-Systems/tf-invoke-systems-linode/dispatches \
+            -d "$payload"
+          echo "Dispatched shouldiplay-deploy with image=${IMAGE_REF}"
