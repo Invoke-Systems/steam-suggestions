@@ -36,6 +36,9 @@ func TestContentSecurityPolicyIncludesUmami(t *testing.T) {
 	if !strings.Contains(csp, "https://analytics.invoke.systems") {
 		t.Fatal(csp)
 	}
+	if !strings.Contains(csp, "worker-src") || !strings.Contains(csp, "blob:") {
+		t.Fatalf("worker-src blob: required for session recorder: %s", csp)
+	}
 	snippet := string(analyticsHTML())
 	want := []string{
 		`src="https://analytics.invoke.systems/recorder.js"`,

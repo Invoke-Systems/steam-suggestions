@@ -163,18 +163,15 @@ func (s *Server) Warmup() {
 		}
 		_ = s.Client.EnsureReviews(s.DB, ids)
 		if !shouldIngestAppList(s.DB) {
-			if stats, err := s.DB.Stats(); err == nil {
-				log.Printf("Steam SQLite: %d apps, %d tagged, %d priced", stats.Games, stats.Tagged, stats.Priced)
-			}
+			jobs.LogCatalogStatus(s.DB)
 			return
 		}
 		if err := jobs.IngestAppList(s.DB, s.Client); err != nil {
 			log.Printf("Steam catalog ingest skipped: %v", err)
+			jobs.LogCatalogStatus(s.DB)
 			return
 		}
-		if stats, err := s.DB.Stats(); err == nil {
-			log.Printf("Steam SQLite: %d apps, %d tagged, %d priced", stats.Games, stats.Tagged, stats.Priced)
-		}
+		jobs.LogCatalogStatus(s.DB)
 	}()
 }
 

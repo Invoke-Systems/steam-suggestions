@@ -120,9 +120,11 @@ func contentSecurityPolicy(opts htmlHeaderOpts) string {
 	}
 	script := []string{"'self'"}
 	connect := []string{"'self'"}
+	worker := []string{"'self'", "blob:"}
 	if origin := analyticsOrigin(); origin != "" {
 		script = append(script, origin)
 		connect = append(connect, origin)
+		worker = append(worker, origin)
 	}
 	return strings.Join([]string{
 		"default-src 'self'",
@@ -130,6 +132,9 @@ func contentSecurityPolicy(opts htmlHeaderOpts) string {
 		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 		"font-src https://fonts.gstatic.com",
 		"script-src " + strings.Join(script, " "),
+		// Session recorder (Umami) boots a blob: Worker; without worker-src,
+		// Firefox falls back to default-src and blocks it.
+		"worker-src " + strings.Join(worker, " "),
 		"connect-src " + strings.Join(connect, " "),
 		"object-src 'none'",
 		"base-uri 'self'",

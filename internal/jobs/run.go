@@ -154,6 +154,16 @@ func Run(ctx context.Context, db *store.DB, client *steam.Client, cfg Config) er
 		}})
 	}
 
+	names := make([]string, 0, len(jobs))
+	for _, j := range jobs {
+		names = append(names, j.name)
+	}
+	if cfg.Every > 0 {
+		log.Printf("steam scrapers: %v (immediate pass, then every %s)", names, cfg.Every)
+	} else {
+		log.Printf("steam scrapers: %v (oneshot)", names)
+	}
+
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(jobs))
 	for _, j := range jobs {
@@ -181,6 +191,7 @@ func Run(ctx context.Context, db *store.DB, client *steam.Client, cfg Config) er
 }
 
 func scrapeLoop(ctx context.Context, every time.Duration, once func(context.Context) error) error {
+	// Always run once immediately (boot / oneshot), then optionally loop.
 	for {
 		if err := ctx.Err(); err != nil {
 			return err

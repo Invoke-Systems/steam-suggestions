@@ -508,10 +508,10 @@ function renderPlayer() {
   if (!player) {
     const copy = document.createElement("div");
     const name = document.createElement("h2");
-    name.textContent = "Catalog sift";
+    name.textContent = "Browse without a library";
     const meta = document.createElement("p");
     meta.className = "player-meta";
-    meta.textContent = "No library loaded. Ranking from prefer / avoid tags and filters.";
+    meta.textContent = "No library loaded. Sorting from prefer / avoid tags and filters.";
     copy.append(name, meta);
     playerCard.append(copy);
     return;
@@ -654,7 +654,7 @@ function renderRecs() {
     if (state.games.length) {
       recsEl.hidden = false;
       tasteProfileEl.hidden = false;
-      if (!tasteLine.textContent) tasteLine.textContent = "Scoring recommendations…";
+      if (!tasteLine.textContent) tasteLine.textContent = "Finding matches…";
     } else {
       recsEl.hidden = true;
       tasteProfileEl.hidden = true;
@@ -677,7 +677,7 @@ function renderRecs() {
   if (recs.pool) {
     const pool = document.createElement("span");
     pool.className = "taste-pool";
-    pool.textContent = `${recs.pool.toLocaleString()} games after filters.`;
+    pool.textContent = `${recs.pool.toLocaleString()} games still in play.`;
     tasteLine.append(document.createTextNode(" "), pool);
   }
   tasteProfileEl.hidden = false;
@@ -794,12 +794,12 @@ function renderRecs() {
 
 function emptyRecsMessage() {
   if (state.onSale) {
-    return "None of these recommendations are on sale right now. Try turning the sale filter off, or slide toward Mainstream.";
+    return "None of these picks are on sale right now. Turn the sale filter off, or slide toward Mainstream.";
   }
   if (state.skipShovelware || state.minReviews || state.minPositive || state.includeTags.length || state.excludeTags.length) {
-    return "Nothing left after the quality filters. Loosen skip shovelware, min reviews, or include/exclude tags.";
+    return "Nothing left after those filters. Try fewer limits — junk skip, review count, or tags.";
   }
-  return "No unowned catalog games left to rank. That should not happen for slider changes.";
+  return "No unowned games left to rank. That shouldn’t happen when you only move the sliders.";
 }
 
 function clusterPercent(cluster, all = []) {
@@ -1395,7 +1395,7 @@ function runSift() {
 async function loadRecommendations() {
   if (!canRunSift()) return;
   try {
-    tasteLine.textContent = "Scoring this sift…";
+    tasteLine.textContent = "Finding matches…";
     const res = await fetch("/api/recommend", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1511,8 +1511,13 @@ function download(filename, text, type = "text/plain") {
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
+  a.rel = "noopener";
+  a.style.display = "none";
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  // Revoke after the click has a chance to start the download.
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
 
 async function enrichGenres(games) {
@@ -1520,10 +1525,10 @@ async function enrichGenres(games) {
     .filter((game) => !game.genres)
     .sort((a, b) => b.minutes - a.minutes);
   if (!pending.length) {
-    enrichStatus.textContent = "Genres ready.";
+    enrichStatus.textContent = "Genres are ready.";
     return;
   }
-  enrichStatus.textContent = `Fetching genres for ${pending.length} games…`;
+  enrichStatus.textContent = `Loading genres for ${pending.length} games…`;
   const chunkSize = 12;
   for (let i = 0; i < pending.length; i += chunkSize) {
     const chunk = pending.slice(i, i + chunkSize);
@@ -1543,10 +1548,10 @@ async function enrichGenres(games) {
       game.releaseDate = info.releaseDate || "";
       game.metacritic = info.metacritic ?? null;
     }
-    enrichStatus.textContent = `Fetched genres for ${Math.min(i + chunkSize, pending.length)} / ${pending.length} games.`;
+    enrichStatus.textContent = `Loaded genres for ${Math.min(i + chunkSize, pending.length)} / ${pending.length} games.`;
     renderAll();
   }
-  enrichStatus.textContent = "Genres ready. Export when you want suggestions.";
+  enrichStatus.textContent = "Genres are ready. Export whenever you want a second opinion.";
 }
 
 async function fetchLibrary(identifier) {
@@ -1882,11 +1887,12 @@ document.querySelector("#export-csv").addEventListener("click", () => {
 
 document.querySelector("#copy-prompt").addEventListener("click", async () => {
   await navigator.clipboard.writeText(llmPrompt());
-  setStatus("Copied an LLM prompt with your library CSV.");
+  setStatus("Copied a prompt for your favorite AI — paste it anywhere.");
 });
 
 document.querySelector("#export-prompt").addEventListener("click", () => {
   download("steam-suggestion-prompt.txt", llmPrompt());
+  setStatus("Downloaded a prompt plus your library CSV.");
 });
 
 if (demoBtn) demoBtn.addEventListener("click", loadDemo);

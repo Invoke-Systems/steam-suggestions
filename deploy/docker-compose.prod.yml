@@ -1,4 +1,6 @@
-# Production compose for shouldiplay.co — image pulled from GHCR, not built on the host.
+# Production compose for shouldiplay.co.
+# Canonical deploy copy lives in tf-invoke-systems-linode/shouldiplay.co/deploy/;
+# keep this file in sync when changing runtime wiring.
 services:
   web:
     image: ${IMAGE}
@@ -20,6 +22,8 @@ services:
       - ./data:/app/data
     restart: unless-stopped
 
+  # Default: all 7 Steam scrapers. First pass runs immediately on boot, then every 6h.
+  # ITAD lows are separate: docker compose run --rm worker /app/worker -itad-lows
   worker:
     image: ${IMAGE}
     command: ["/app/worker", "-every", "6h"]

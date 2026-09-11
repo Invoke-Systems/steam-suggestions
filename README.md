@@ -76,7 +76,27 @@ Prices are one region per database (`STEAM_CC` / `STEAM_CURRENCY`, default US / 
 
 ## Steam worker (independent scrapers)
 
-Each Steam endpoint runs in its own goroutine. Appid is the primary key for game data. Leave this running, or repeat on a timer.
+On boot the worker logs catalog status (`games` / `tagged` / `priced` / …) and whether catch-up is needed. With `-every`, each scraper still runs an **immediate first pass**, then sleeps — Docker/systemd long-running services are not “wait then crawl.”
+
+Each Steam endpoint is its own goroutine. Appid is the primary key. No flags (or compose `worker -every 6h`) enables all seven Steam scrapers:
+
+| Goroutine | Flag | Steam / data |
+|-----------|------|----------------|
+| `taglist` | `-taglist` | `IStoreService/GetTagList` |
+| `applist` | `-applist` | `IStoreService/GetAppList` |
+| `items` | `-items` (or `-tags`/`-prices`/`-reviews`) | `IStoreBrowseService/GetItems` → tags, prices, reviews |
+| `players` | `-players` | charts + `GetNumberOfCurrentPlayers` (default 8 HTTP workers) |
+| `details` | `-details` | `store/api/appdetails` |
+| `news` | `-news` | `ISteamNews/GetNewsForApp` |
+| `achievements` | `-achievements` | `GetGlobalAchievementPercentagesForApp` |
+
+Separate (not in the default Steam set):
+
+| Job | Flag | Notes |
+|-----|------|--------|
+| ITAD lows | `-itad-lows` | Official ITAD API → `price_low`; needs `ITAD_API_KEY` |
+
+The **web** process also runs a light `Warmup()` goroutine: tag dict, EnsureTags/Reviews for the embedded catalog, and AppList ingest if the DB is thin (`<1000` games) or AppList is stale (`>24h`).
 
 ```bash
 go run ./cmd/worker
@@ -85,8 +105,6 @@ go run ./cmd/worker -players -workers 8 -limit 1000   # charts top-100 + paralle
 go run ./cmd/worker -every 6h
 # legacy aliases still work: -tags -prices -reviews (drive GetItems writes)
 ```
-
-No flags means all scrapers: tag list, app list, GetItems (tags/prices/reviews), current players, appdetails, news, achievements.
 
 ### IsThereAnyDeal historical lows (one-time)
 
@@ -120,4 +138,4 @@ sudo systemctl enable --now steam-suggestions steam-suggestions-worker.timer
 
 Set `STEAM_API_KEY` and `ALLOW_CLIENT_API_KEY=false`. Do not put a Steam key in frontend code or a public repo.
 
-CSV export and the LLM prompt are still there if you want a second opinion.
+CSV export and “Ask your AI” are still there if you want a second opinion.

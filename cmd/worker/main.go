@@ -89,6 +89,11 @@ func main() {
 		os.Getenv("STEAM_CC"),
 		os.Getenv("STEAM_CURRENCY"),
 	)
+	if client.APIKey == "" {
+		log.Fatal("worker: STEAM_API_KEY is required")
+	}
+
+	stats := jobs.LogCatalogStatus(db)
 	cfg := jobs.Config{
 		TagList:      *tagList,
 		AppList:      *appList,
@@ -107,8 +112,18 @@ func main() {
 		Every:        *every,
 		Workers:      *workers,
 	}
+	// Sparse DB + periodic mode: run an unbounded first pass by leaving Limit
+	// alone (0 = drain). Callers can still pass -limit to cap a boot catch-up.
+	if stats.NeedsCatchUp() && *every > 0 && *limit == 0 {
+		log.Printf("worker: boot catch-up pass (all enabled scrapers once), then every %s", *every)
+	} else if *every > 0 {
+		log.Printf("worker: immediate first pass, then every %s", *every)
+	} else {
+		log.Printf("worker: oneshot pass")
+	}
 	log.Printf("worker: launching independent Steam scrapers")
 	if err := jobs.Run(ctx, db, client, cfg); err != nil {
 		log.Fatal(err)
 	}
+	jobs.LogCatalogStatus(db)
 }

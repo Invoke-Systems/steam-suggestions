@@ -6,7 +6,7 @@
     <title>Should I Play</title>
     <meta
       name="description"
-      content="Should I Play — search any Steam game or username and get an honest sift of what fits your library."
+      content="Should I Play — search a Steam game or username and see what fits how you actually play."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Fragment+Mono:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=sip10" />
+    <link rel="stylesheet" href="/styles.css?v=sip11" />
     <!--analytics-->
   </head>
   <body>
@@ -52,11 +52,11 @@
           <span class="hero-line hero-line-play">Play<span class="hero-q">?</span></span>
         </h1>
         <p class="lede">
-          Search a game or Steam username. Taste from real playtime — save sifts when you sign in.
+          Search a game or Steam username. We go by what you actually play — sign in to save searches.
         </p>
       </div>
       <p class="hero-hint hint">
-        <kbd>/</kbd> focus search · lists below are live from our catalog
+        <kbd>/</kbd> jumps to search · lists below update from Steam
       </p>
     </header>
 
@@ -65,28 +65,28 @@
         <section class="home-dir" data-home-rail="hot" hidden>
           <div class="rail-head">
             <h2><span class="slash">/</span> Hot</h2>
-            <p class="hint">5k+ and right at the top of their range</p>
+            <p class="hint">Busy games near their usual peak</p>
           </div>
           <div class="home-list" data-home-list></div>
         </section>
         <section class="home-dir" data-home-rail="topPlayers" hidden>
           <div class="rail-head">
             <h3><span class="slash">/</span> Most playing</h3>
-            <p class="hint">Highest concurrent from samples</p>
+            <p class="hint">Most people in-game right now</p>
           </div>
           <div class="home-list" data-home-list></div>
         </section>
         <section class="home-dir" data-home-rail="newWithPlayers" hidden>
           <div class="rail-head">
             <h3><span class="slash">/</span> Popular now</h3>
-            <p class="hint">Newer titles with 5k+ playing</p>
+            <p class="hint">Newer games with 5k+ playing</p>
           </div>
           <div class="home-list" data-home-list></div>
         </section>
         <section class="home-dir" data-home-rail="onSale" hidden>
           <div class="rail-head">
             <h3><span class="slash">/</span> On sale</h3>
-            <p class="hint">Deep cuts with review weight</p>
+            <p class="hint">Big discounts with solid reviews</p>
           </div>
           <div class="home-list" data-home-list></div>
         </section>
@@ -124,7 +124,7 @@
               <div class="account-fact">
                 <dt>Steam account</dt>
                 <dd id="account-steam-name">—</dd>
-                <dd class="hint"><a id="account-profile-link" href="#" target="_blank" rel="noreferrer">Open Steam profile</a></dd>
+                <dd class="hint"><a id="account-profile-link" target="_blank" rel="noreferrer">Open Steam profile</a></dd>
               </div>
               <div class="account-fact">
                 <dt>SteamID64</dt>
@@ -158,12 +158,12 @@
             <div>
               <p class="eyebrow">My Sifts</p>
               <h2>Saved sifts</h2>
-              <p class="hint">Save the current taste and filters. Apply one to run it again.</p>
+              <p class="hint">Save how you’re searching now. Open one later to run it again.</p>
             </div>
             <div id="account-search-slot" class="search-slot"></div>
             <div class="panel">
               <h3>Your sifts</h3>
-              <p class="hint">These stay on this Steam account.</p>
+              <p class="hint">Kept on this Steam account.</p>
               <ul id="saved-searches" class="saved-searches"></ul>
             </div>
           </div>
@@ -192,7 +192,7 @@
             <section class="sift-layer" aria-labelledby="taste-layer-title">
               <div class="sift-layer-head">
                 <p class="eyebrow" id="taste-layer-title">Taste</p>
-                <p class="hint">Ranks the pool. Never empties it.</p>
+                <p class="hint">Changes the order. Doesn’t hide games.</p>
               </div>
               <div class="control-row sliders">
                 <label class="field">
@@ -210,7 +210,7 @@
                 <div class="field typeahead prefer-field">
                   <label for="prefer-tag">
                     <span class="field-label">Prefer</span>
-                    <span class="field-hint">Boost these tags. Does not hide the rest.</span>
+                    <span class="field-hint">Raise these tags. Other games still show.</span>
                   </label>
                   <div class="prefer-row">
                     <input
@@ -231,7 +231,7 @@
                 <div class="field typeahead prefer-field">
                   <label for="avoid-tag">
                     <span class="field-label">Avoid</span>
-                    <span class="field-hint">Rank these lower. Still not a hard ban.</span>
+                    <span class="field-hint">Push these down the list. Still shown.</span>
                   </label>
                   <div class="prefer-row">
                     <input
@@ -254,7 +254,7 @@
             <section class="sift-layer" aria-labelledby="filter-layer-title">
               <div class="sift-layer-head">
                 <p class="eyebrow" id="filter-layer-title">Filters</p>
-                <p class="hint">Hard constraints. These can empty the list.</p>
+                <p class="hint">These can remove games. Turn one off if the list goes empty.</p>
               </div>
               <div class="sale-row">
                 <label class="sale-toggle">
@@ -266,7 +266,7 @@
                 <div class="control-row toggles">
                   <label class="sale-toggle">
                     <input id="dial-shovel" type="checkbox" checked />
-                    Skip shovelware
+                    Skip junk titles
                   </label>
                   <label class="sale-toggle">
                     <input id="dial-adult" type="checkbox" />
@@ -280,7 +280,7 @@
                 <div class="control-row numbers">
                   <label class="field">
                     <span class="field-label">Min reviews</span>
-                    <span class="field-hint">Whole number</span>
+                    <span class="field-hint">Number only</span>
                     <span class="int-input">
                       <input id="min-reviews" type="number" inputmode="numeric" min="0" step="1" placeholder="500" />
                       <span class="suffix">reviews</span>
@@ -288,7 +288,7 @@
                   </label>
                   <label class="field">
                     <span class="field-label">Max reviews</span>
-                    <span class="field-hint">Whole number</span>
+                    <span class="field-hint">Number only</span>
                     <span class="int-input">
                       <input id="max-reviews" type="number" inputmode="numeric" min="0" step="1" placeholder="none" />
                       <span class="suffix">reviews</span>
@@ -296,7 +296,7 @@
                   </label>
                   <label class="field">
                     <span class="field-label">Min rating</span>
-                    <span class="field-hint">Whole number 0–100</span>
+                    <span class="field-hint">0–100</span>
                     <span class="int-input">
                       <input id="min-positive" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="70" />
                       <span class="suffix">% positive</span>
@@ -307,7 +307,7 @@
                   <div class="field typeahead">
                     <label for="include-tag">
                       <span class="field-label">Must include</span>
-                      <span class="field-hint">Game has this tag</span>
+                      <span class="field-hint">Only games with this tag</span>
                     </label>
                     <input
                       id="include-tag"
@@ -325,7 +325,7 @@
                   <div class="field typeahead">
                     <label for="exclude-tag">
                       <span class="field-label">Must exclude</span>
-                      <span class="field-hint">Game must not have this tag</span>
+                      <span class="field-hint">Hide games with this tag</span>
                     </label>
                     <input
                       id="exclude-tag"
@@ -391,11 +391,11 @@
         </div>
 
         <div class="export-bar">
-          <p id="enrich-status">Recommendations use playtime first. Genres fill in behind the scenes.</p>
+          <p id="enrich-status">We rank by playtime first. Genres catch up in the background.</p>
           <div class="export-actions">
             <button type="button" class="primary" id="export-csv">Export CSV</button>
-            <button type="button" class="ghost" id="copy-prompt">Copy LLM prompt</button>
-            <button type="button" class="ghost" id="export-prompt">Download prompt + CSV</button>
+            <button type="button" class="ghost" id="copy-prompt" title="Copy a prompt you can paste into ChatGPT, Claude, or similar">Ask your AI</button>
+            <button type="button" class="ghost" id="export-prompt" title="Download the same prompt plus your library CSV">Download for AI</button>
           </div>
         </div>
 
@@ -425,9 +425,9 @@
         status.textContent = msgs[code] || msgs.lookup;
       })();
     </script>
-    <script src="/theme.js?v=sip10"></script>
-    <script src="/home-browse.js?v=sip10"></script>
-    <script src="/topsearch.js?v=sip10"></script>
-    <script src="/app.js?v=sip10"></script>
+    <script src="/theme.js?v=sip11"></script>
+    <script src="/home-browse.js?v=sip11"></script>
+    <script src="/topsearch.js?v=sip11"></script>
+    <script src="/app.js?v=sip11"></script>
   </body>
 </html>

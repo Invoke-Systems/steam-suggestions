@@ -179,10 +179,43 @@ type DB struct {
 }
 
 type Stats struct {
-	Games    int
-	Tagged   int
-	Priced   int
-	TagNames int
+	Games        int
+	Tagged       int
+	Priced       int
+	TagNames     int
+	Reviewed     int
+	Players      int
+	Details      int
+	News         int
+	Achievements int
+	ITADLows     int
+}
+
+// NeedsCatchUp is true when the catalog is too thin for a healthy site.
+func (s Stats) NeedsCatchUp() bool {
+	if s.Games < 1000 {
+		return true
+	}
+	if s.Tagged < s.Games/10 {
+		return true
+	}
+	if s.Priced < s.Games/20 {
+		return true
+	}
+	if s.Reviewed < 500 {
+		return true
+	}
+	if s.Players < 100 {
+		return true
+	}
+	return false
+}
+
+func (s Stats) Summary() string {
+	return fmt.Sprintf(
+		"games=%d tagged=%d priced=%d reviewed=%d players=%d details=%d news=%d ach=%d itad=%d tags=%d",
+		s.Games, s.Tagged, s.Priced, s.Reviewed, s.Players, s.Details, s.News, s.Achievements, s.ITADLows, s.TagNames,
+	)
 }
 
 type GameTag struct {
@@ -244,9 +277,18 @@ func (db *DB) Stats() (Stats, error) {
 		  (SELECT COUNT(*) FROM games),
 		  (SELECT COUNT(*) FROM games WHERE tags_ok = 1),
 		  (SELECT COUNT(*) FROM games WHERE price_fetched_at IS NOT NULL),
-		  (SELECT COUNT(*) FROM tag_dict)
+		  (SELECT COUNT(*) FROM tag_dict),
+		  (SELECT COUNT(*) FROM reviews WHERE total > 0),
+		  (SELECT COUNT(*) FROM player_stats),
+		  (SELECT COUNT(*) FROM app_details WHERE missing = 0),
+		  (SELECT COUNT(*) FROM app_news),
+		  (SELECT COUNT(DISTINCT appid) FROM app_achievements),
+		  (SELECT COUNT(*) FROM price_low WHERE source = 'itad')
 	`)
-	err := row.Scan(&s.Games, &s.Tagged, &s.Priced, &s.TagNames)
+	err := row.Scan(
+		&s.Games, &s.Tagged, &s.Priced, &s.TagNames,
+		&s.Reviewed, &s.Players, &s.Details, &s.News, &s.Achievements, &s.ITADLows,
+	)
 	return s, err
 }
 
